@@ -1,0 +1,144 @@
+api:
+
+  common:
+    version: 1.0.0
+    title: Sample API
+    description: Description of the API...
+    termsOfServiceUrl: MINE TERMS OF SERVICE URL
+    license: License
+    licenseUrl: MY LICENSE URL
+
+    contact:
+      name: Vukan Marković
+      url: My
+      email: vukan.markovic97@gmail.com
+
+  player-composite:
+
+    get-composite-player:
+      description: Returns a composite view of the specified player id
+      notes: |
+        # Normal response
+        If the requested player id is found the method will return information regarding:
+        1. Player information
+        1. Nationality
+        1. Team
+        1. National team
+        1. League
+        1. Service Addresses
+        (technical information regarding the addresses of the microservices that created the response)
+
+        # Expected partial and error responses
+        1. If no player information is found, a <b>404 - Not Found</b> error will be returned
+        1. In no nationality, team, national team or league are found for a player, a partial response will be returned
+
+    create-composite-player:
+      description: Creates a composite player
+      notes: |
+        # Normal response
+        The composite player information posted to the API will be splitted up and stored as separate player-info, nationality, team, league and national team entities.
+
+        # Expected error responses
+        1. If a player with the same playerId as specified in the posted information already exists,
+           an <b>422 - Unprocessable Entity</b> error with a "duplicate key" error message will be returned
+
+    delete-composite-player:
+      description: Deletes a player composite
+      notes: |
+        # Normal response
+        Entity for player information related to the specificed playerId will be deleted.
+        The implementation of the delete method is idempotent, i.e. it can be called several times with the same response.
+        This means that a delete request of a non existing player will return <b>200 Ok</b>.
+
+server.port: 7000
+server.error.include-message: always
+
+ribbon.ServerListRefreshInterval: 5000
+
+ribbon.NFLoadBalancerPingInterval: 5
+
+spring.cloud.stream:
+  defaultBinder: rabbit
+  default.contentType: application/json
+  bindings:
+    output-players:
+      destination: players
+      producer:
+        required-groups: auditGroup
+    output-nationalities:
+      destination: nationalities
+      producer:
+        required-groups: auditGroup
+    output-teams:
+      destination: teams
+      producer:
+        required-groups: auditGroup
+    output-nationalTeams:
+      destination: nationalTeams
+      producer:
+        required-groups: auditGroup
+    output-leagues:
+      destination: leagues
+      producer:
+        required-groups: auditGroup
+
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://${app.auth-server}:9999/.well-known/jwks.json
+
+app.player-service.timeoutSec: 2
+
+resilience4j.retry:
+  backends:
+    player:
+      maxRetryAttempts: 3
+      waitDuration: 1000
+      retryExceptions:
+        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+
+management.health.circuitbreakers.enabled: true
+
+resilience4j.circuitbreaker:
+  backends:
+    player:
+      registerHealthIndicator: true
+      ringBufferSizeInClosedState: 5
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      ringBufferSizeInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      ignoreExceptions:
+        - se.magnus.util.exceptions.InvalidInputException
+        - se.magnus.util.exceptions.NotFoundException
+
+logging:
+  level:
+    root: INFO
+    se.magnus: DEBUG
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
+
+---
+spring.profiles: docker
+
+server.port: 8080
+
+---
+spring.profiles: streaming_partitioned
+
+spring.cloud.stream.bindings.output-players.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+spring.cloud.stream.bindings.output-nationalities.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+spring.cloud.stream.bindings.output-teams.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+spring.cloud.stream.bindings.output-nationalTeams.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+spring.cloud.stream.bindings.output-leagues.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
