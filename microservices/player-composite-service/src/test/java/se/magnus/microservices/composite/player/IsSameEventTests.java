@@ -13,15 +13,16 @@ import static se.magnus.api.event.Event.Type.CREATE;
 import static se.magnus.api.event.Event.Type.DELETE;
 import static se.magnus.microservices.composite.player.IsSameEvent.sameEventExceptCreatedAt;
 
+@SuppressWarnings("ALL")
 public class IsSameEventTests {
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testEventObjectCompare() throws JsonProcessingException {
-        Event<Integer, Player> event1 = new Event<>(CREATE, 1, new Player(1, "name", "surname", "", "", 1, 1, 1, null));
-        Event<Integer, Player> event2 = new Event<>(CREATE, 1, new Player(1, "name", "surname", "reg number", "02.02.2021", 1, 1,  1, null));
+        Event<Integer, Player> event1 = new Event<>(CREATE, 1, new Player(1, "name", "surname", "reg number", "02.02.2021", 1, 1, 1, 1, null));
+        Event<Integer, Player> event2 = new Event<>(CREATE, 1, new Player(1, "name", "surname", "reg number", "02.02.2021", 1, 1, 1, 1, null));
         Event<Integer, Player> event3 = new Event<>(DELETE, 1, null);
-        Event<Integer, Player> event4 = new Event<>(CREATE, 2, new Player(1, "name", "surname", "reg number", "02.02.2021", 1, 1,  1, null));
+        Event<Integer, Player> event4 = new Event<>(CREATE, 1, new Player(2, "name", "surname", "reg number", "02.02.2021", 1, 1, 1, 1, null));
         String event1JSon = mapper.writeValueAsString(event1);
         assertThat(event1JSon, is(sameEventExceptCreatedAt(event2)));
         assertThat(event1JSon, not(sameEventExceptCreatedAt(event3)));

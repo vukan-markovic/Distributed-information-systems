@@ -16,8 +16,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import se.magnus.api.core.nationalTeam.NationalTeam;
-import se.magnus.api.core.nationalTeam.NationalTeamService;
+import se.magnus.api.core.league.League;
+import se.magnus.api.core.league.LeagueService;
+import se.magnus.api.core.nationality.Nationality;
+import se.magnus.api.core.nationality.NationalityService;
+import se.magnus.api.core.nationalteam.NationalTeam;
+import se.magnus.api.core.nationalteam.NationalTeamService;
 import se.magnus.api.core.player.Player;
 import se.magnus.api.core.player.PlayerService;
 import se.magnus.api.core.team.Team;
@@ -36,10 +40,10 @@ import static se.magnus.api.event.Event.Type.DELETE;
 
 @EnableBinding(PlayerCompositeIntegration.MessageSources.class)
 @Component
-public class PlayerCompositeIntegration implements PlayerService, TeamService, NationalTeamService {
+public class PlayerCompositeIntegration implements PlayerService, TeamService, NationalTeamService, NationalityService, LeagueService {
     private static final Logger LOG = LoggerFactory.getLogger(PlayerCompositeIntegration.class);
     private final String playerServiceUrl = "http://player";
-    private final String nationalTeamServiceUrl = "http://nationalTeam";
+    private final String nationalteamServiceUrl = "http://nationalteam";
     private final String teamServiceUrl = "http://team";
     private final String nationalityServiceUrl = "http://nationality";
     private final ObjectMapper mapper;
@@ -93,9 +97,9 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     }
 
     @Override
-    public Mono<Team> getTeam(int playerId) {
-        URI url = UriComponentsBuilder.fromUriString(teamServiceUrl + "/recommendation?playerId={playerId}").build(playerId);
-        LOG.debug("Will call the getRecommendations API on URL: {}", url);
+    public Mono<Team> getTeam(int teamId) {
+        URI url = UriComponentsBuilder.fromUriString(teamServiceUrl + "/team/{teamId}").build(teamId);
+        LOG.debug("Will call the getTeam API on URL: {}", url);
 
         return getWebClient().get().uri(url)
                 .retrieve().bodyToMono(Team.class).log()
@@ -103,20 +107,20 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     }
 
     @Override
-    public void deleteTeam(int playerId) {
-        messageSources.outputTeams().send(MessageBuilder.withPayload(new Event(DELETE, playerId, null)).build());
+    public void deleteTeam(int teamId) {
+        messageSources.outputTeams().send(MessageBuilder.withPayload(new Event(DELETE, teamId, null)).build());
     }
 
     @Override
     public NationalTeam createNationalTeam(NationalTeam body) {
-        messageSources.outputNationalities().send(MessageBuilder.withPayload(new Event(CREATE, body.getNationalTeamId(), body)).build());
+        messageSources.outputNationalTeams().send(MessageBuilder.withPayload(new Event(CREATE, body.getNationalTeamId(), body)).build());
         return body;
     }
 
     @Override
-    public Mono<NationalTeam> getNationalTeam(int playerId) {
-        URI url = UriComponentsBuilder.fromUriString(nationalTeamServiceUrl + "/review?playerId={playerId}").build(playerId);
-        LOG.debug("Will call the getReviews API on URL: {}", url);
+    public Mono<NationalTeam> getNationalTeam(int nationalteamId) {
+        URI url = UriComponentsBuilder.fromUriString(nationalteamServiceUrl + "/nationalteam/{nationalteamId}").build(nationalteamId);
+        LOG.debug("Will call the getNationalTeam API on URL: {}", url);
 
         return getWebClient().get().uri(url)
                 .retrieve().bodyToMono(NationalTeam.class).log()
@@ -124,8 +128,50 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     }
 
     @Override
-    public void deleteNationalTeam(int playerId) {
-        messageSources.outputNationalities().send(MessageBuilder.withPayload(new Event(DELETE, playerId, null)).build());
+    public void deleteNationalTeam(int nationalteamId) {
+        messageSources.outputNationalTeams().send(MessageBuilder.withPayload(new Event(DELETE, nationalteamId, null)).build());
+    }
+
+    @Override
+    public Nationality createNationality(Nationality body) {
+        messageSources.outputNationalities().send(MessageBuilder.withPayload(new Event(CREATE, body.getNationalityId(), body)).build());
+        return body;
+    }
+
+    @Override
+    public Mono<Nationality> getNationality(int nationalityId) {
+        URI url = UriComponentsBuilder.fromUriString(nationalteamServiceUrl + "/nationality/{nationalityId}").build(nationalityId);
+        LOG.debug("Will call the getNationality API on URL: {}", url);
+
+        return getWebClient().get().uri(url)
+                .retrieve().bodyToMono(Nationality.class).log()
+                .onErrorMap(WebClientResponseException.class, this::handleException);
+    }
+
+    @Override
+    public void deleteNationality(int nationalityId) {
+        messageSources.outputNationalities().send(MessageBuilder.withPayload(new Event(DELETE, nationalityId, null)).build());
+    }
+
+    @Override
+    public League createLeague(League body) {
+        messageSources.outputNationalities().send(MessageBuilder.withPayload(new Event(CREATE, body.getLeagueId(), body)).build());
+        return body;
+    }
+
+    @Override
+    public Mono<League> getLeague(int leagueId) {
+        URI url = UriComponentsBuilder.fromUriString(nationalteamServiceUrl + "/leagueId/{leagueId}").build(leagueId);
+        LOG.debug("Will call the getLeague API on URL: {}", url);
+
+        return getWebClient().get().uri(url)
+                .retrieve().bodyToMono(League.class).log()
+                .onErrorMap(WebClientResponseException.class, this::handleException);
+    }
+
+    @Override
+    public void deleteLeague(int leagueId) {
+        messageSources.outputLeagues().send(MessageBuilder.withPayload(new Event(DELETE, leagueId, null)).build());
     }
 
     private WebClient getWebClient() {
@@ -164,11 +210,13 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     }
 
     public interface MessageSources {
-        String OUTPUT_PRODUCTS = "output-players";
+        String OUTPUT_PLAYERS = "output-players";
         String OUTPUT_TEAMS = "output-teams";
         String OUTPUT_NATIONALITIES = "output-nationalities";
+        String OUTPUT_NATIONALTEAMS = "output-nationalteams";
+        String OUTPUT_LEAGUES = "output-leagues";
 
-        @Output(OUTPUT_PRODUCTS)
+        @Output(OUTPUT_PLAYERS)
         MessageChannel outputPlayers();
 
         @Output(OUTPUT_TEAMS)
@@ -176,5 +224,11 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
 
         @Output(OUTPUT_NATIONALITIES)
         MessageChannel outputNationalities();
+
+        @Output(OUTPUT_NATIONALTEAMS)
+        MessageChannel outputNationalTeams();
+
+        @Output(OUTPUT_LEAGUES)
+        MessageChannel outputLeagues();
     }
 }

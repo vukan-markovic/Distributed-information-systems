@@ -8,6 +8,7 @@ import se.magnus.microservices.core.nationality.services.NationalityMapper;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ALL")
 public class MapperTests {
     private NationalityMapper mapper = Mappers.getMapper(NationalityMapper.class);
 

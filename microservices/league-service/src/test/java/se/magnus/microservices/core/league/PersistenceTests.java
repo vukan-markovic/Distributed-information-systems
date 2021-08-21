@@ -28,7 +28,7 @@ public class PersistenceTests {
     public void setupDb() {
         repository.deleteAll();
         LeagueEntity entity = new LeagueEntity(1, "a", "s");
-        savedEntity = repository.save(entity).block();
+        savedEntity = repository.save(entity);
         assertEqualsLeague(entity, savedEntity);
     }
 
@@ -36,7 +36,7 @@ public class PersistenceTests {
     public void create() {
         LeagueEntity newEntity = new LeagueEntity(3, "a", "s");
         repository.save(newEntity);
-        LeagueEntity foundEntity = repository.findById(String.valueOf(newEntity.getId())).block();
+        LeagueEntity foundEntity = repository.findById(newEntity.getId()).get();
         assertEqualsLeague(newEntity, foundEntity);
         assertEquals(2, repository.count());
     }
@@ -45,7 +45,7 @@ public class PersistenceTests {
     public void update() {
         savedEntity.setName("a2");
         repository.save(savedEntity);
-        LeagueEntity foundEntity = repository.findById(String.valueOf(savedEntity.getId())).block();
+        LeagueEntity foundEntity = repository.findById(savedEntity.getId()).get();
         assertEquals(1, foundEntity.getVersion());
         assertEquals("a2", foundEntity.getName());
     }
@@ -53,12 +53,12 @@ public class PersistenceTests {
     @Test
     public void delete() {
         repository.delete(savedEntity);
-        assertFalse(repository.existsById(String.valueOf(savedEntity.getId())).block());
+        assertFalse(repository.existsById(savedEntity.getId()));
     }
 
     @Test
     public void getByLeagueId() {
-        LeagueEntity entity = repository.findByLeagueId(savedEntity.getLeagueId()).block();
+        LeagueEntity entity = repository.findByLeagueId(savedEntity.getLeagueId());
         assertEqualsLeague(savedEntity, entity);
     }
 
@@ -70,8 +70,8 @@ public class PersistenceTests {
 
     @Test
     public void optimisticLockError() {
-        LeagueEntity entity1 = repository.findById(String.valueOf(savedEntity.getId())).block();
-        LeagueEntity entity2 = repository.findById(String.valueOf(savedEntity.getId())).block();
+        LeagueEntity entity1 = repository.findById(savedEntity.getId()).get();
+        LeagueEntity entity2 = repository.findById(savedEntity.getId()).get();
         entity1.setName("a1");
         repository.save(entity1);
 
@@ -82,7 +82,7 @@ public class PersistenceTests {
         } catch (OptimisticLockingFailureException ignored) {
         }
 
-        LeagueEntity updatedEntity = repository.findById(String.valueOf(savedEntity.getId())).block();
+        LeagueEntity updatedEntity = repository.findById(savedEntity.getId()).get();
         assertEquals(1, updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getName());
     }

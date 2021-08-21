@@ -18,6 +18,7 @@ import java.util.Random;
 
 import static reactor.core.publisher.Mono.error;
 
+@SuppressWarnings("ALL")
 @RestController
 public class PlayerServiceImpl implements PlayerService {
     private static final Logger LOG = LoggerFactory.getLogger(PlayerServiceImpl.class);
@@ -73,10 +74,12 @@ public class PlayerServiceImpl implements PlayerService {
 
     private void simulateDelay(int delay) {
         LOG.debug("Sleeping for {} seconds...", delay);
+
         try {
             Thread.sleep(delay * 1000L);
         } catch (InterruptedException ignored) {
         }
+
         LOG.debug("Moving on...");
     }
 

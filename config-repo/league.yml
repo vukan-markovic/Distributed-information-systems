@@ -1,4 +1,4 @@
-server.port: 7006
+server.port: 7005
 server.error.include-message: always
 
 spring.jpa.hibernate.ddl-auto: update

@@ -22,7 +22,7 @@ public class NationalityEntity {
     public NationalityEntity() {
     }
 
-    public NationalityEntity(int nationalityId, int reviewId, String name, String abbreviation, String content) {
+    public NationalityEntity(int nationalityId, int reviewId, String name, String abbreviation) {
         this.nationalityId = nationalityId;
         this.name = name;
         this.abbreviation = abbreviation;

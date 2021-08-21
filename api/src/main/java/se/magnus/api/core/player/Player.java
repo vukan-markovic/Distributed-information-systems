@@ -9,7 +9,8 @@ public class Player {
     private String serviceAddress;
     private int nationalityId;
     private int teamId;
-    private int nationalTeamId;
+    private int nationalteamId;
+    private int leagueId;
 
     public Player() {
         playerId = 0;
@@ -20,18 +21,20 @@ public class Player {
         serviceAddress = null;
         nationalityId = 0;
         teamId = 0;
-        nationalTeamId = 0;
+        nationalteamId = 0;
+        leagueId = 0;
     }
 
-    public Player(int playerId, String name, String surname, String registrationNumber, String dateOfBirth, int nationalityId, int nationalTeamId, int teamId, String serviceAddress) {
+    public Player(int playerId, String name, String surname, String registrationNumber, String dateOfBirth, int nationalityId, int nationalteamId, int teamId, int leagueId, String serviceAddress) {
         this.playerId = playerId;
         this.name = name;
         this.surname = surname;
         this.registrationNumber = registrationNumber;
         this.dateOfBirth = dateOfBirth;
-        this.nationalTeamId = nationalTeamId;
+        this.nationalteamId = nationalteamId;
         this.nationalityId = nationalityId;
         this.teamId = teamId;
+        this.leagueId = leagueId;
         this.serviceAddress = serviceAddress;
     }
 
@@ -92,11 +95,19 @@ public class Player {
     }
 
     public int getNationalTeamId() {
-        return nationalTeamId;
+        return nationalteamId;
     }
 
-    public void setNationalTeamId(int nationalTeamId) {
-        this.nationalTeamId = nationalTeamId;
+    public void setNationalTeamId(int nationalteamId) {
+        this.nationalteamId = nationalteamId;
+    }
+
+    public int getLeagueId() {
+        return leagueId;
+    }
+
+    public void setLeagueId(int leagueId) {
+        this.leagueId = leagueId;
     }
 
     public String getServiceAddress() {

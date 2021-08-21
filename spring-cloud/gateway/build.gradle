@@ -14,6 +14,7 @@ repositories {
 }
 
 ext {
+    //noinspection GrUnresolvedAccess
     set('springCloudVersion', 'Hoxton.SR6')
 }
 
@@ -34,7 +35,9 @@ dependencies {
 }
 
 dependencyManagement {
+    //noinspection GrUnresolvedAccess
     imports {
+        //noinspection GrUnresolvedAccess
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }

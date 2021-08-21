@@ -19,7 +19,6 @@ import se.magnus.microservices.core.nationality.persistence.NationalityRepositor
 import se.magnus.util.exceptions.InvalidInputException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -77,7 +76,7 @@ public class NationalityServiceApplicationTests {
         } catch (MessagingException me) {
             if (me.getCause() instanceof InvalidInputException) {
                 InvalidInputException iie = (InvalidInputException) me.getCause();
-                assertEquals("Duplicate key, Player Id: 1, Review Id:1", iie.getMessage());
+                assertEquals("Duplicate key, Nationality Id: 1", iie.getMessage());
             } else {
                 fail("Expected a InvalidInputException as the root cause!");
             }
@@ -92,8 +91,7 @@ public class NationalityServiceApplicationTests {
         sendCreateNationalityEvent(nationalityId);
         assertNotNull(repository.findByNationalityId(nationalityId));
         sendDeleteNationalityEvent(nationalityId);
-        assertNotNull(repository.findByNationalityId(nationalityId));
-        sendDeleteNationalityEvent(nationalityId);
+        assertNull(repository.findByNationalityId(nationalityId));
     }
 
     @Test
@@ -101,15 +99,6 @@ public class NationalityServiceApplicationTests {
         getAndVerifyNationality("/no-integer", BAD_REQUEST)
                 .jsonPath("$.path").isEqualTo("/nationality/no-integer")
                 .jsonPath("$.message").isEqualTo("Type mismatch.");
-    }
-
-    @Test
-    public void getNationalityNotFound() {
-        int nationalityIdNotFound = 13;
-
-        getAndVerifyNationality(nationalityIdNotFound, NOT_FOUND)
-                .jsonPath("$.path").isEqualTo("/nationality/" + nationalityIdNotFound)
-                .jsonPath("$.message").isEqualTo("No nationality found for nationalityId: " + nationalityIdNotFound);
     }
 
     @Test
@@ -136,8 +125,8 @@ public class NationalityServiceApplicationTests {
     }
 
     private void sendCreateNationalityEvent(int nationalityId) {
-        Nationality nationalTeam = new Nationality(nationalityId, "Name " + nationalityId, "Abbreviation " + nationalityId, "SA");
-        Event<Integer, Nationality> event = new Event(CREATE, nationalityId, nationalTeam);
+        Nationality nationality = new Nationality(nationalityId, "Name " + nationalityId, "Abbreviation " + nationalityId, "SA");
+        Event<Integer, Player> event = new Event(CREATE, nationalityId, nationality);
         input.send(new GenericMessage<>(event));
     }
 

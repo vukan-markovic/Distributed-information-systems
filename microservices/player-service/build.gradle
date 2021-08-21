@@ -54,7 +54,9 @@ dependencies {
 }
 
 dependencyManagement {
+    //noinspection GrUnresolvedAccess
     imports {
+        //noinspection GrUnresolvedAccess
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }

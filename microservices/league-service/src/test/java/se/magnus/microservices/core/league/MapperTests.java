@@ -8,6 +8,7 @@ import se.magnus.microservices.core.league.services.LeagueMapper;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ALL")
 public class MapperTests {
     private LeagueMapper mapper = Mappers.getMapper(LeagueMapper.class);
 

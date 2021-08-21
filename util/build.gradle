@@ -33,7 +33,9 @@ dependencies {
 }
 
 dependencyManagement {
+    //noinspection GrUnresolvedAccess
     imports {
+        //noinspection GrUnresolvedAccess
         mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
     }
 }

@@ -24,19 +24,18 @@ public class PersistenceTests {
     @Before
     public void setupDb() {
         StepVerifier.create(repository.deleteAll()).verifyComplete();
-        PlayerEntity entity = new PlayerEntity(1, "n", "c", "d", "02.02.2021.");
+        PlayerEntity entity = new PlayerEntity(1, "n", "c", "d", "02.02.2021.", 1, 1, 1, 1);
 
         StepVerifier.create(repository.save(entity))
                 .expectNextMatches(createdEntity -> {
                     savedEntity = createdEntity;
                     return arePlayerEqual(entity, savedEntity);
-                })
-                .verifyComplete();
+                }).verifyComplete();
     }
 
     @Test
     public void create() {
-        PlayerEntity newEntity = new PlayerEntity(1, "n", "c", "d", "02.02.2021.");
+        PlayerEntity newEntity = new PlayerEntity(2, "n", "c", "d", "02.02.2021.", 1, 1, 1, 1);
 
         StepVerifier.create(repository.save(newEntity))
                 .expectNextMatches(createdEntity -> newEntity.getPlayerId() == createdEntity.getPlayerId())
@@ -79,7 +78,7 @@ public class PersistenceTests {
 
     @Test
     public void duplicateError() {
-        PlayerEntity entity = new PlayerEntity(1, "n", "c", "d", "02.02.2021.");
+        PlayerEntity entity = new PlayerEntity(1, "n", "c", "d", "02.02.2021.", 1, 1, 1, 1);
         StepVerifier.create(repository.save(entity)).expectError(DuplicateKeyException.class).verify();
     }
 
@@ -104,6 +103,8 @@ public class PersistenceTests {
                         (expectedEntity.getVersion().equals(actualEntity.getVersion())) &&
                         (expectedEntity.getPlayerId() == actualEntity.getPlayerId()) &&
                         (expectedEntity.getName().equals(actualEntity.getName())) &&
-                        (expectedEntity.getSurname().equals(actualEntity.getSurname()));
+                        (expectedEntity.getSurname().equals(actualEntity.getSurname())) &&
+                        (expectedEntity.getRegistrationNumber().equals(actualEntity.getRegistrationNumber())) &&
+                        (expectedEntity.getDateOfBirth().equals(actualEntity.getDateOfBirth()));
     }
 }

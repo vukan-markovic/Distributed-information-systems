@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("ALL")
 public class IsSameEvent extends TypeSafeMatcher<String> {
     private static final Logger LOG = LoggerFactory.getLogger(IsSameEvent.class);
     private ObjectMapper mapper = new ObjectMapper();

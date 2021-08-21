@@ -4,22 +4,24 @@ public class PlayerAggregate {
     private final int playerId;
     private final String name;
     private final String surname;
-    private final String registration_number;
+    private final String registrationNumber;
     private final String dateOfBirth;
     private final TeamSummary team;
     private final NationalitySummary nationality;
-    private final NationalTeamSummary nationalTeam;
+    private final NationalTeamSummary nationalteam;
+    private final LeagueSummary league;
     private final ServiceAddresses serviceAddresses;
 
     public PlayerAggregate() {
         playerId = 0;
         name = null;
         surname = null;
-        registration_number = null;
+        registrationNumber = null;
         dateOfBirth = null;
         team = null;
         nationality = null;
-        nationalTeam = null;
+        nationalteam = null;
+        league = null;
         serviceAddresses = null;
     }
 
@@ -27,20 +29,22 @@ public class PlayerAggregate {
             int playerId,
             String name,
             String surname,
-            String registration_number,
+            String registrationNumber,
             String dateOfBirth,
             TeamSummary team,
             NationalitySummary nationality,
-            NationalTeamSummary nationalTeam,
+            NationalTeamSummary nationalteam,
+            LeagueSummary league,
             ServiceAddresses serviceAddresses) {
         this.playerId = playerId;
         this.name = name;
         this.surname = surname;
-        this.registration_number = registration_number;
+        this.registrationNumber = registrationNumber;
         this.dateOfBirth = dateOfBirth;
         this.team = team;
         this.nationality = nationality;
-        this.nationalTeam = nationalTeam;
+        this.nationalteam = nationalteam;
+        this.league = league;
         this.serviceAddresses = serviceAddresses;
     }
 
@@ -56,8 +60,8 @@ public class PlayerAggregate {
         return surname;
     }
 
-    public String getRegistration_number() {
-        return registration_number;
+    public String getRegistrationNumber() {
+        return registrationNumber;
     }
 
     public String getDateOfBirth() {
@@ -73,7 +77,11 @@ public class PlayerAggregate {
     }
 
     public NationalTeamSummary getNationalTeam() {
-        return nationalTeam;
+        return nationalteam;
+    }
+
+    public LeagueSummary getLeague() {
+        return league;
     }
 
     public ServiceAddresses getServiceAddresses() {

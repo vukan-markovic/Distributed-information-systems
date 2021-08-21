@@ -128,7 +128,7 @@ public class PlayerServiceApplicationTests {
     }
 
     private void sendCreatePlayerEvent(int playerId) {
-        Player player = new Player(playerId, "Name " + playerId, "Surname " + playerId, "Reg number " + playerId, "02.02.2021." + playerId, 1, 1, 1, "SA");
+        Player player = new Player(playerId, "Name " + playerId, "Surname " + playerId, "Reg number " + playerId, "02.02.2021." + playerId, 1, 1, 1, 1, "SA");
         Event<Integer, Player> event = new Event(CREATE, playerId, player);
         input.send(new GenericMessage<>(event));
     }

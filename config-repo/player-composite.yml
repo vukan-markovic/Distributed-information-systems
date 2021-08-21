@@ -73,8 +73,8 @@ spring.cloud.stream:
       destination: teams
       producer:
         required-groups: auditGroup
-    output-nationalTeams:
-      destination: nationalTeams
+    output-nationalteams:
+      destination: nationalteams
       producer:
         required-groups: auditGroup
     output-leagues:
@@ -135,7 +135,7 @@ spring.cloud.stream.bindings.output-teams.producer:
   partition-key-expression: payload.key
   partition-count: 2
 
-spring.cloud.stream.bindings.output-nationalTeams.producer:
+spring.cloud.stream.bindings.output-nationalteams.producer:
   partition-key-expression: payload.key
   partition-count: 2
 

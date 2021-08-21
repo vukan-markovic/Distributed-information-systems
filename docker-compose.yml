@@ -61,8 +61,8 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  nationalTeam:
-    build: microservices/nationalTeam-service
+  nationalteam:
+    build: microservices/nationalteam-service
     mem_limit: 350m
     networks:
       - my-network

@@ -6,7 +6,7 @@ public class ServiceAddresses {
     private final String nationality;
     private final String team;
     private final String league;
-    private final String nationalTeam;
+    private final String nationalteam;
 
     public ServiceAddresses() {
         composite = null;
@@ -14,17 +14,17 @@ public class ServiceAddresses {
         nationality = null;
         team = null;
         league = null;
-        nationalTeam = null;
+        nationalteam = null;
     }
 
     public ServiceAddresses(String compositeAddress, String playerAddress, String nationalityAddress, String teamAddress,
-                            String leagueAddress, String nationalTeamAddress) {
+                            String leagueAddress, String nationalteamAddress) {
         this.composite = compositeAddress;
         this.player = playerAddress;
         this.nationality = nationalityAddress;
         this.team = teamAddress;
         this.league = leagueAddress;
-        this.nationalTeam = nationalTeamAddress;
+        this.nationalteam = nationalteamAddress;
     }
 
     public String getComposite() {
@@ -48,6 +48,6 @@ public class ServiceAddresses {
     }
 
     public String getNationalTeam() {
-        return nationalTeam;
+        return nationalteam;
     }
 }

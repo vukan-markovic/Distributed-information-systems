@@ -13,12 +13,12 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.magnus.api.core.league.League;
+import se.magnus.api.core.player.Player;
 import se.magnus.api.event.Event;
 import se.magnus.microservices.core.league.persistence.LeagueRepository;
 import se.magnus.util.exceptions.InvalidInputException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -60,7 +60,7 @@ public class LeagueServiceApplicationTests {
         assertEquals(1, repository.count());
 
         getAndVerifyLeague(leagueId, OK)
-                .jsonPath("$.playerId").isEqualTo(leagueId);
+                .jsonPath("$.leagueId").isEqualTo(leagueId);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class LeagueServiceApplicationTests {
         } catch (MessagingException me) {
             if (me.getCause() instanceof InvalidInputException) {
                 InvalidInputException iie = (InvalidInputException) me.getCause();
-                assertEquals("Duplicate key, Player Id: 1, Review Id:1", iie.getMessage());
+                assertEquals("Duplicate key, League Id: 1", iie.getMessage());
             } else {
                 fail("Expected a InvalidInputException as the root cause!");
             }
@@ -90,9 +90,8 @@ public class LeagueServiceApplicationTests {
         int leagueId = 1;
         sendCreateLeagueEvent(leagueId);
         assertNotNull(repository.findByLeagueId(leagueId));
-        sendCreateLeagueEvent(leagueId);
-        assertNotNull(repository.findByLeagueId(leagueId));
-        sendCreateLeagueEvent(leagueId);
+        sendDeleteLeagueEvent(leagueId);
+        assertNull(repository.findByLeagueId(leagueId));
     }
 
     @Test
@@ -100,15 +99,6 @@ public class LeagueServiceApplicationTests {
         getAndVerifyLeague("/no-integer", BAD_REQUEST)
                 .jsonPath("$.path").isEqualTo("/league/no-integer")
                 .jsonPath("$.message").isEqualTo("Type mismatch.");
-    }
-
-    @Test
-    public void getLeagueNotFound() {
-        int leagueIdNotFound = 13;
-
-        getAndVerifyLeague(leagueIdNotFound, NOT_FOUND)
-                .jsonPath("$.path").isEqualTo("/league/" + leagueIdNotFound)
-                .jsonPath("$.message").isEqualTo("No league found for leagueId: " + leagueIdNotFound);
     }
 
     @Test
@@ -136,12 +126,12 @@ public class LeagueServiceApplicationTests {
 
     private void sendCreateLeagueEvent(int leagueId) {
         League league = new League(leagueId, "Name " + leagueId, "Label " + leagueId, "SA");
-        Event<Integer, League> event = new Event(CREATE, leagueId, league);
+        Event<Integer, Player> event = new Event(CREATE, leagueId, league);
         input.send(new GenericMessage<>(event));
     }
 
     private void sendDeleteLeagueEvent(int leagueId) {
-        Event<Integer, League> event = new Event(DELETE, leagueId, null);
+        Event<Integer, Player> event = new Event(DELETE, leagueId, null);
         input.send(new GenericMessage<>(event));
     }
 }

@@ -12,8 +12,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import se.magnus.api.composite.player.*;
-import se.magnus.api.core.nationalTeam.NationalTeam;
+import se.magnus.api.core.league.League;
 import se.magnus.api.core.nationality.Nationality;
+import se.magnus.api.core.nationalteam.NationalTeam;
 import se.magnus.api.core.player.Player;
 import se.magnus.api.core.team.Team;
 import se.magnus.util.exceptions.NotFoundException;
@@ -44,18 +45,28 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
         try {
             logAuthorizationInfo(sc);
             LOG.debug("createCompositePlayer: creates a new composite entity for playerId: {}", body.getPlayerId());
-            Player player = new Player(body.getPlayerId(), body.getName(), body.getSurname(), body.getRegistration_number(), body.getDateOfBirth(), null);
+            Player player = new Player(body.getPlayerId(), body.getName(), body.getSurname(), body.getRegistrationNumber(), body.getDateOfBirth(), body.getNationality().getNationalityId(), body.getNationalTeam().getNationalTeamId(), body.getTeam().getTeamId(), body.getLeague().getLeagueId(), null);
             integration.createPlayer(player);
 
             if (body.getTeam() != null) {
-                Team team = new Team(body.getPlayerId(), body.getTeam().getName(), r.getAuthor(), r.getRate(), r.getContent(), null);
+                Team team = new Team(body.getTeam().getTeamId(), body.getTeam().getName(), body.getTeam().getFounded(), body.getTeam().getCity(), null);
                 integration.createTeam(team);
             }
 
+            if (body.getNationalTeam() != null) {
+                NationalTeam nationalteam = new NationalTeam(body.getNationalTeam().getNationalTeamId(), body.getNationalTeam().getName(), body.getNationalTeam().getTeamSelector(), null);
+                integration.createNationalTeam(nationalteam);
+            }
+
             if (body.getNationality() != null) {
-                NationalTeam nationalTeam = new NationalTeam(body.getPlayerId(),   body.getNationality().getNationalityId(),   body.getNationality().getName(),   body.getNationality().getAbbreviation(), r.getContent(), null);
-                integration.createNationalTeam(nationalTeam);
-              }
+                Nationality nationality = new Nationality(body.getNationality().getNationalityId(), body.getNationality().getName(), body.getNationality().getAbbreviation(), null);
+                integration.createNationality(nationality);
+            }
+
+            if (body.getLeague() != null) {
+                League league = new League(body.getLeague().getLeagueId(), body.getLeague().getName(), body.getLeague().getLabel(), null);
+                integration.createLeague(league);
+            }
 
             LOG.debug("createCompositePlayer: composite entities created for playerId: {}", body.getPlayerId());
 
@@ -68,14 +79,15 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
     @Override
     public Mono<PlayerAggregate> getCompositePlayer(int playerId, int delay, int faultPercent) {
         return Mono.zip(
-                values -> createPlayerAggregate((SecurityContext) values[0], (Player) values[1], (Team) values[2], (NationalTeam) values[3], serviceUtil.getServiceAddress()),
+                values -> createPlayerAggregate((SecurityContext) values[0], (Player) values[1], (Team) values[2], (NationalTeam) values[3], (Nationality) values[4], (League) values[5], serviceUtil.getServiceAddress()),
                 ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
                 integration.getPlayer(playerId, delay, faultPercent)
                         .onErrorReturn(CallNotPermittedException.class, getPlayerFallbackValue(playerId)),
+                integration.getTeam(playerId),
                 integration.getNationalTeam(playerId),
-                integration.getTeam(playerId))
-                .doOnError(ex -> LOG.warn("getCompositePlayer failed: {}", ex.toString()))
-                .log();
+                integration.getNationality(playerId)
+                        .doOnError(ex -> LOG.warn("getCompositePlayer failed: {}", ex.toString()))
+                        .log());
     }
 
     @Override
@@ -106,27 +118,31 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
             throw new NotFoundException(errMsg);
         }
 
-        return new Player(playerId, "Fallback player" + playerId, playerId, serviceUtil.getServiceAddress());
+        return new Player(playerId, "Fallback player" + playerId, "surname", "reg num", "02.02.2021.", 1, 1, 1, 1, serviceUtil.getServiceAddress());
     }
 
-    private PlayerAggregate createPlayerAggregate(SecurityContext sc, Player player, Team team, NationalTeam nationalTeam, Nationality nationality, String serviceAddress) {
+    private PlayerAggregate createPlayerAggregate(SecurityContext sc, Player player, Team team, NationalTeam nationalteam, Nationality nationality, League league, String serviceAddress) {
         logAuthorizationInfo(sc);
-        int playerId = player.getPlayerId();
-        String name = player.getName();
-        String surname = player.getSurname();
+
+        LeagueSummary leagueSummary = (league == null) ? null :
+                new LeagueSummary(league.getLeagueId(), league.getName(), league.getLabel());
 
         TeamSummary teamSummary = (team == null) ? null :
-                 new TeamSummary(r.getLeagueId(), r.getName(), r.getFounded(), r.getCity());
+                new TeamSummary(team.getTeamId(), team.getName(), team.getFounded(), team.getCity());
 
         NationalitySummary nationalitySummary = (nationality == null) ? null :
-               new NationalitySummary(r.getNationalityId(), r.getName(), r.getAbbreviation(), r.getContent());
+                new NationalitySummary(nationality.getNationalityId(), nationality.getName(), nationality.getAbbreviation());
+
+        NationalTeamSummary nationalteamSummary = (nationalteam == null) ? null :
+                new NationalTeamSummary(nationalteam.getNationalTeamId(), nationalteam.getName(), nationalteam.getTeamSelector());
 
         String playerAddress = player.getServiceAddress();
         String nationalityAddress = (nationality != null) ? nationality.getServiceAddress() : "";
-        String teamAdress = (team != null) ? team.get(0).getServiceAddress() : "";
-        ServiceAddresses serviceAddresses = new ServiceAddresses(serviceAddress, playerAddress, reviewAddress, recommendationAddress);
-
-        return new PlayerAggregate(playerId, name, surname, teamAdress, nationalityAddress, serviceAddresses);
+        String teamAddress = (team != null) ? team.getServiceAddress() : "";
+        String nationalteamAddress = (nationalteam != null) ? nationalteam.getServiceAddress() : "";
+        String leagueAddress = (league != null) ? league.getServiceAddress() : "";
+        ServiceAddresses serviceAddresses = new ServiceAddresses(serviceAddress, playerAddress, nationalityAddress, teamAddress, nationalteamAddress, leagueAddress);
+        return new PlayerAggregate(player.getPlayerId(), player.getName(), player.getSurname(), player.getRegistrationNumber(), player.getDateOfBirth(), teamSummary, nationalitySummary, nationalteamSummary, leagueSummary, serviceAddresses);
     }
 
     private void logAuthorizationInfo(SecurityContext sc) {

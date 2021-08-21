@@ -12,13 +12,13 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import se.magnus.api.core.player.Player;
 import se.magnus.api.core.team.Team;
 import se.magnus.api.event.Event;
 import se.magnus.microservices.core.team.persistence.TeamRepository;
 import se.magnus.util.exceptions.InvalidInputException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -47,7 +47,7 @@ public class TeamServiceApplicationTests {
     @Before
     public void setupDb() {
         input = (AbstractMessageChannel) channels.input();
-        repository.deleteAll().block();
+        repository.deleteAll();
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TeamServiceApplicationTests {
         assertEquals(1, repository.count());
 
         getAndVerifyTeam(teamId, OK)
-                .jsonPath("$.playerId").isEqualTo(teamId);
+                .jsonPath("$.teamId").isEqualTo(teamId);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class TeamServiceApplicationTests {
         } catch (MessagingException me) {
             if (me.getCause() instanceof InvalidInputException) {
                 InvalidInputException iie = (InvalidInputException) me.getCause();
-                assertEquals("Duplicate key, Team Id: 1, Review Id:1", iie.getMessage());
+                assertEquals("Duplicate key, Team Id: 1", iie.getMessage());
             } else {
                 fail("Expected a InvalidInputException as the root cause!");
             }
@@ -90,9 +90,8 @@ public class TeamServiceApplicationTests {
         int teamId = 1;
         sendCreateTeamEvent(teamId);
         assertNotNull(repository.findByTeamId(teamId));
-        sendCreateTeamEvent(teamId);
-        assertNotNull(repository.findByTeamId(teamId));
-        sendCreateTeamEvent(teamId);
+        sendDeleteTeamEvent(teamId);
+        assertNull(repository.findByTeamId(teamId));
     }
 
     @Test
@@ -100,15 +99,6 @@ public class TeamServiceApplicationTests {
         getAndVerifyTeam("/no-integer", BAD_REQUEST)
                 .jsonPath("$.path").isEqualTo("/team/no-integer")
                 .jsonPath("$.message").isEqualTo("Type mismatch.");
-    }
-
-    @Test
-    public void getTeamNotFound() {
-        int teamIdNotFound = 13;
-
-        getAndVerifyTeam(teamIdNotFound, NOT_FOUND)
-                .jsonPath("$.path").isEqualTo("/team/" + teamIdNotFound)
-                .jsonPath("$.message").isEqualTo("No team found for teamId: " + teamIdNotFound);
     }
 
     @Test
@@ -135,13 +125,13 @@ public class TeamServiceApplicationTests {
     }
 
     private void sendCreateTeamEvent(int teamId) {
-        Team team = new Team(teamId, 1, "Name " + teamId, "Founded " + teamId, "City" + teamId, "SA");
-        Event<Integer, Team> event = new Event(CREATE, teamId, team);
+        Team team = new Team(teamId, "Name " + teamId, "Founded " + teamId, "City" + teamId, "SA");
+        Event<Integer, Player> event = new Event(CREATE, teamId, team);
         input.send(new GenericMessage<>(event));
     }
 
     private void sendDeleteTeamEvent(int teamId) {
-        Event<Integer, Team> event = new Event(DELETE, teamId, null);
+        Event<Integer, Player> event = new Event(DELETE, teamId, null);
         input.send(new GenericMessage<>(event));
     }
 }

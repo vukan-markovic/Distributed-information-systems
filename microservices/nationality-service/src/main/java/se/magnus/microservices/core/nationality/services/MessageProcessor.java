@@ -34,7 +34,7 @@ public class MessageProcessor {
 
             case DELETE:
                 int nationalityId = event.getKey();
-                LOG.info("Delete nationality with NationalityID: {}", nationalityId);
+                LOG.info("Delete nationality with ID: {}", nationalityId);
                 nationalityService.deleteNationality(nationalityId);
                 break;
 

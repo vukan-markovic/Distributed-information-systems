@@ -28,7 +28,7 @@ public class MessageProcessor {
         switch (event.getEventType()) {
             case CREATE:
                 Team team = event.getData();
-                LOG.info("Create team with ID: {}/{}", team.getTeamId(), team.getLeagueId());
+                LOG.info("Create team with ID: {}", team.getTeamId());
                 teamService.createTeam(team);
                 break;
 

@@ -34,7 +34,7 @@ public class MessageProcessor {
 
             case DELETE:
                 int playerId = event.getKey();
-                LOG.info("Delete recommendations with PlayerID: {}", playerId);
+                LOG.info("Delete player with ID: {}", playerId);
                 playerService.deletePlayer(playerId);
                 break;
 

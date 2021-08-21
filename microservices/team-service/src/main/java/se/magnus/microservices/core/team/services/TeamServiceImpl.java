@@ -3,7 +3,7 @@ package se.magnus.microservices.core.team.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import se.magnus.api.core.team.Team;
@@ -13,6 +13,7 @@ import se.magnus.microservices.core.team.persistence.TeamRepository;
 import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.http.ServiceUtil;
 
+@SuppressWarnings("ALL")
 @RestController
 public class TeamServiceImpl implements TeamService {
     private static final Logger LOG = LoggerFactory.getLogger(TeamServiceImpl.class);
@@ -29,36 +30,37 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Team createTeam(Team body) {
-        if (body.getTeamId() < 1) throw new InvalidInputException("Invalid teamId: " + body.getTeamId());
+        if (body.getTeamId() < 1)
+            throw new InvalidInputException("Invalid teamId: " + body.getTeamId());
 
-        TeamEntity entity = mapper.apiToEntity(body);
-        Mono<Team> newEntity = repository.save(entity)
-                .log()
-                .onErrorMap(
-                        DuplicateKeyException.class,
-                        ex -> new InvalidInputException("Duplicate key, Team Id: " + body.getTeamId() + ", Recommendation Id:" + body.getLeagueId()))
-                .map(mapper::entityToApi);
-
-        return newEntity.block();
+        try {
+            TeamEntity entity = mapper.apiToEntity(body);
+            TeamEntity newEntity = repository.save(entity);
+            LOG.debug("createTeam: created a team entity: {}", body.getTeamId());
+            return mapper.entityToApi(newEntity);
+        } catch (DataIntegrityViolationException dive) {
+            throw new InvalidInputException("Duplicate key, Team Id: " + body.getTeamId());
+        }
     }
 
     @Override
     public Mono<Team> getTeam(int teamId) {
         if (teamId < 1) throw new InvalidInputException("Invalid teamId: " + teamId);
+        return Mono.just(getByTeamId(teamId));
+    }
 
-        return repository.findByTeamId(teamId)
-                .log()
-                .map(mapper::entityToApi)
-                .map(e -> {
-                    e.setServiceAddress(serviceUtil.getServiceAddress());
-                    return e;
-                });
+    protected Team getByTeamId(int teamId) {
+        TeamEntity entity = repository.findByTeamId(teamId);
+        Team api = mapper.entityToApi(entity);
+        api.setServiceAddress(serviceUtil.getServiceAddress());
+        LOG.debug("getTeam");
+        return api;
     }
 
     @Override
     public void deleteTeam(int teamId) {
         if (teamId < 1) throw new InvalidInputException("Invalid teamId: " + teamId);
-        LOG.debug("deleteRecommendations: tries to delete recommendations for the team with teamId: {}", teamId);
-        repository.deleteAll(repository.findByTeamId(teamId)).block();
+        LOG.debug("deleteTeam: tries to delete team with teamId: {}", teamId);
+        repository.delete(repository.findByTeamId(teamId));
     }
 }

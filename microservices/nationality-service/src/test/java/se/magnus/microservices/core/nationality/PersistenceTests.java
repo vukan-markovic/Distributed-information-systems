@@ -27,7 +27,7 @@ public class PersistenceTests {
     @Before
     public void setupDb() {
         repository.deleteAll();
-        NationalityEntity entity = new NationalityEntity(1, 2, "a", "s", "c");
+        NationalityEntity entity = new NationalityEntity(1, 2, "a", "s");
         savedEntity = repository.save(entity);
         assertEqualsNationality(entity, savedEntity);
     }
@@ -35,7 +35,7 @@ public class PersistenceTests {
 
     @Test
     public void create() {
-        NationalityEntity newEntity = new NationalityEntity(1, 3, "a", "s", "c");
+        NationalityEntity newEntity = new NationalityEntity(2, 3, "a", "s");
         repository.save(newEntity);
         NationalityEntity foundEntity = repository.findById(newEntity.getId()).get();
         assertEqualsNationality(newEntity, foundEntity);
@@ -59,7 +59,7 @@ public class PersistenceTests {
 
     @Test(expected = DataIntegrityViolationException.class)
     public void duplicateError() {
-        NationalityEntity entity = new NationalityEntity(1, 2, "a", "s", "c");
+        NationalityEntity entity = new NationalityEntity(1, 2, "a", "s");
         repository.save(entity);
     }
 

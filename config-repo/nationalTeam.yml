@@ -4,14 +4,14 @@ server.error.include-message: always
 spring.data.mongodb:
   host: localhost
   port: 27017
-  database: nationalTeam-db
+  database: nationalteam-db
 
 spring.cloud.stream:
   defaultBinder: rabbit
   default.contentType: application/json
   bindings.input:
-    destination: nationalTeams
-    group: nationalTeamsGroup
+    destination: nationalteams
+    group: nationalteamsGroup
 
 spring.cloud.stream.bindings.input.consumer:
   maxAttempts: 3

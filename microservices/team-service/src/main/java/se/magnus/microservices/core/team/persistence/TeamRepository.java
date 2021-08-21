@@ -1,8 +1,7 @@
 package se.magnus.microservices.core.team.persistence;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.repository.CrudRepository;
 
-public interface TeamRepository extends ReactiveCrudRepository<TeamEntity, String> {
-    Mono<TeamEntity> findByTeamId(int leagueId);
+public interface TeamRepository extends CrudRepository<TeamEntity, Integer> {
+    TeamEntity findByTeamId(int leagueId);
 }

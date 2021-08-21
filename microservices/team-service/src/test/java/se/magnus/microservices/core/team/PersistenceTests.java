@@ -26,70 +26,64 @@ public class PersistenceTests {
 
     @Before
     public void setupDb() {
-        repository.deleteAll().block();
-        TeamEntity entity = new TeamEntity(1, 2, "a", "02.02.2021.", "c");
-        savedEntity = repository.save(entity).block();
+        repository.deleteAll();
+        TeamEntity entity = new TeamEntity(1, "a", "02.02.2021.", "c");
+        savedEntity = repository.save(entity);
         assertEqualsTeam(entity, savedEntity);
     }
 
 
     @Test
     public void create() {
-        TeamEntity newEntity = new TeamEntity(1, 3, "a", "02.02.2021.", "c");
-        repository.save(newEntity).block();
-        TeamEntity foundEntity = repository.findById(newEntity.getId()).block();
+        TeamEntity newEntity = new TeamEntity(2, "a", "02.02.2021.", "c");
+        repository.save(newEntity);
+        TeamEntity foundEntity = repository.findById(newEntity.getId()).get();
         assertEqualsTeam(newEntity, foundEntity);
-        assertEquals(2, (long) repository.count().block());
+        assertEquals(2, repository.count());
     }
 
     @Test
     public void update() {
         savedEntity.setName("a2");
-        repository.save(savedEntity).block();
-        TeamEntity foundEntity = repository.findById(savedEntity.getId()).block();
+        repository.save(savedEntity);
+        TeamEntity foundEntity = repository.findById(savedEntity.getId()).get();
         assertEquals(1, (long) foundEntity.getVersion());
         assertEquals("a2", foundEntity.getName());
     }
 
     @Test
     public void delete() {
-        repository.delete(savedEntity).block();
-        assertFalse(repository.existsById(savedEntity.getId()).block());
+        repository.delete(savedEntity);
+        assertFalse(repository.existsById(savedEntity.getId()));
     }
 
     @Test
     public void getByTeamId() {
-        TeamEntity entity = repository.findByTeamId(savedEntity.getLeagueId()).block();
+        TeamEntity entity = repository.findByTeamId(savedEntity.getTeamId());
         assertEqualsTeam(savedEntity, entity);
     }
 
     @Test(expected = DuplicateKeyException.class)
     public void duplicateError() {
-        TeamEntity entity = new TeamEntity(1, 2, "a", "02.02.2021.", "c");
-        repository.save(entity).block();
+        TeamEntity entity = new TeamEntity(1, "a", "02.02.2021.", "c");
+        repository.save(entity);
     }
 
     @Test
     public void optimisticLockError() {
-        // Store the saved entity in two separate entity objects
-        TeamEntity entity1 = repository.findById(savedEntity.getId()).block();
-        TeamEntity entity2 = repository.findById(savedEntity.getId()).block();
-
-        // Update the entity using the first entity object
+        TeamEntity entity1 = repository.findById(savedEntity.getId()).get();
+        TeamEntity entity2 = repository.findById(savedEntity.getId()).get();
         entity1.setName("a1");
-        repository.save(entity1).block();
+        repository.save(entity1);
 
-        //  Update the entity using the second entity object.
-        // This should fail since the second entity now holds a old version number, i.e. a Optimistic Lock Error
         try {
             entity2.setName("a2");
-            repository.save(entity2).block();
+            repository.save(entity2);
             fail("Expected an OptimisticLockingFailureException");
         } catch (OptimisticLockingFailureException ignored) {
         }
 
-        // Get the updated entity from the database and verify its new sate
-        TeamEntity updatedEntity = repository.findById(savedEntity.getId()).block();
+        TeamEntity updatedEntity = repository.findById(savedEntity.getId()).get();
         assertEquals(1, (int) updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getName());
     }
@@ -98,7 +92,6 @@ public class PersistenceTests {
         assertEquals(expectedEntity.getId(), actualEntity.getId());
         assertEquals(expectedEntity.getVersion(), actualEntity.getVersion());
         assertEquals(expectedEntity.getTeamId(), actualEntity.getTeamId());
-        assertEquals(expectedEntity.getLeagueId(), actualEntity.getLeagueId());
         assertEquals(expectedEntity.getName(), actualEntity.getName());
         assertEquals(expectedEntity.getCity(), actualEntity.getCity());
         assertEquals(expectedEntity.getFounded(), actualEntity.getFounded());

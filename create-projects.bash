@@ -45,12 +45,12 @@ spring init \
   --build=gradle \
   --java-version=1.8 \
   --packaging=jar \
-  --name=nationalTeam-service \
-  --package-name=se.magnus.microservices.core.nationalTeam \
-  --groupId=se.magnus.microservices.core.nationalTeam \
+  --name=nationalteam-service \
+  --package-name=se.magnus.microservices.core.nationalteam \
+  --groupId=se.magnus.microservices.core.nationalteam \
   --dependencies=actuator,webflux \
   --version=1.0.0-SNAPSHOT \
-  nationalTeam-service
+  nationalteam-service
 
 spring init \
   --boot-version=2.1.0.RELEASE \

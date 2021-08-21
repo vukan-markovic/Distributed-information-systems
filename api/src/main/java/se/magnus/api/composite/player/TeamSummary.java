@@ -5,22 +5,19 @@ public class TeamSummary {
     private final String name;
     private final String founded;
     private final String city;
-    private final LeagueSummary league;
 
     public TeamSummary() {
         this.teamId = 0;
         this.name = null;
         this.founded = null;
         this.city = null;
-        this.league = null;
     }
 
-    public TeamSummary(int teamId, String name, String founded, String city, LeagueSummary league) {
+    public TeamSummary(int teamId, String name, String founded, String city) {
         this.teamId = teamId;
         this.name = name;
         this.founded = founded;
         this.city = city;
-        this.league = league;
     }
 
     public int getTeamId() {
@@ -37,9 +34,5 @@ public class TeamSummary {
 
     public String getCity() {
         return city;
-    }
-
-    public LeagueSummary getLeague() {
-        return league;
     }
 }

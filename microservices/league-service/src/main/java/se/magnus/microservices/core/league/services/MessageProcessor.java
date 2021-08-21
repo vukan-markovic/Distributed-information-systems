@@ -34,7 +34,7 @@ public class MessageProcessor {
 
             case DELETE:
                 int leagueId = event.getKey();
-                LOG.info("Delete league with LeagueID: {}", leagueId);
+                LOG.info("Delete league with ID: {}", leagueId);
                 leagueService.deleteLeague(leagueId);
                 break;
 

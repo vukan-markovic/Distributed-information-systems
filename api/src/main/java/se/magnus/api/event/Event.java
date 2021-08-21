@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import static java.time.LocalDateTime.now;
 
+@SuppressWarnings("ALL")
 public class Event<K, T> {
     private Event.Type eventType;
     private K key;

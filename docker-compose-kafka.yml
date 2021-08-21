@@ -37,8 +37,10 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      - kafka
-      - mysql2
+      mysql2:
+        condition: service_healthy
+      kafka:
+        condition: service_started
 
   team-p1:
     build: microservices/team-service
@@ -50,8 +52,10 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      - kafka
-      - mysql2
+      mysql2:
+        condition: service_healthy
+      kafka:
+        condition: service_started
 
   nationality:
     build: microservices/nationality-service
@@ -113,8 +117,8 @@ services:
       kafka:
         condition: service_started
 
-  nationalTeam:
-    build: microservices/nationalTeam-service
+  nationalteam:
+    build: microservices/nationalteam-service
     mem_limit: 350m
     networks:
       - my-network
@@ -123,13 +127,11 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      mongodb:
-        condition: service_healthy
-      kafka:
-        condition: service_started
+      - kafka
+      - mongodb
 
-  nationalTeam-p1:
-    build: microservices/nationalTeam-service
+  nationalteam-p1:
+    build: microservices/nationalteam-service
     mem_limit: 350m
     networks:
       - my-network
@@ -138,10 +140,8 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      mongodb:
-        condition: service_healthy
-      kafka:
-        condition: service_started
+      - kafka
+      - mongodb
 
   player-composite:
     build: microservices/player-composite-service

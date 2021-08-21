@@ -10,13 +10,11 @@ import se.magnus.microservices.core.team.persistence.TeamEntity;
 public interface TeamMapper {
 
     @Mappings({
-            @Mapping(target = "rate", source = "entity.rating"),
             @Mapping(target = "serviceAddress", ignore = true)
     })
     Team entityToApi(TeamEntity entity);
 
     @Mappings({
-            @Mapping(target = "rating", source = "api.rate"),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "version", ignore = true)
     })

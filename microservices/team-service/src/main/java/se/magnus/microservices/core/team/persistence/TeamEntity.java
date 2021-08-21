@@ -1,21 +1,23 @@
 package se.magnus.microservices.core.team.persistence;
 
 import org.springframework.data.annotation.Version;
+
 import javax.persistence.*;
+
 import static java.lang.String.format;
 
 @Entity
-@Table(name = "teams", indexes = {@Index(name = "teams_unique_idx", unique = true, columnList = "teamId,leagueId")})
+@Table(name = "teams", indexes = {@Index(name = "teams_unique_idx", unique = true, columnList = "teamId")})
 public class TeamEntity {
     @Id
     @GeneratedValue
-    private String id;
+    private int id;
 
     @Version
     private int version;
 
     private int teamId;
-    private int leagueId;
+
     private String name;
     private String founded;
     private String city;
@@ -23,9 +25,8 @@ public class TeamEntity {
     public TeamEntity() {
     }
 
-    public TeamEntity(int teamId, int leagueId, String name, String founded, String city) {
+    public TeamEntity(int teamId, String name, String founded, String city) {
         this.teamId = teamId;
-        this.leagueId = leagueId;
         this.name = name;
         this.founded = founded;
         this.city = city;
@@ -33,14 +34,14 @@ public class TeamEntity {
 
     @Override
     public String toString() {
-        return format("TeamEntity: %s/%d", teamId, leagueId);
+        return format("TeamEntity: %s", teamId);
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -58,14 +59,6 @@ public class TeamEntity {
 
     public void setTeamId(int teamId) {
         this.teamId = teamId;
-    }
-
-    public int getLeagueId() {
-        return leagueId;
-    }
-
-    public void setLeagueId(int leagueId) {
-        this.leagueId = leagueId;
     }
 
     public String getName() {

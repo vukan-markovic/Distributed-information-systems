@@ -2,7 +2,6 @@ package se.magnus.api.core.team;
 
 public class Team {
     private int teamId;
-    private int leagueId;
     private String name;
     private String founded;
     private String city;
@@ -10,16 +9,14 @@ public class Team {
 
     public Team() {
         teamId = 0;
-        leagueId = 0;
         name = null;
         founded = null;
         city = null;
         serviceAddress = null;
     }
 
-    public Team(int teamId, int leagueId, String name, String founded, String city, String serviceAddress) {
+    public Team(int teamId, String name, String founded, String city, String serviceAddress) {
         this.teamId = teamId;
-        this.leagueId = leagueId;
         this.name = name;
         this.founded = founded;
         this.city = city;
@@ -32,14 +29,6 @@ public class Team {
 
     public void setTeamId(int teamId) {
         this.teamId = teamId;
-    }
-
-    public int getLeagueId() {
-        return leagueId;
-    }
-
-    public void setLeagueId(int leagueId) {
-        this.leagueId = leagueId;
     }
 
     public String getName() {

@@ -14,13 +14,11 @@ import se.magnus.api.core.nationality.NationalityService;
 import se.magnus.microservices.core.nationality.persistence.NationalityEntity;
 import se.magnus.microservices.core.nationality.persistence.NationalityRepository;
 import se.magnus.util.exceptions.InvalidInputException;
-import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
 import java.util.function.Supplier;
 
-import static reactor.core.publisher.Mono.error;
-
+@SuppressWarnings("ALL")
 @RestController
 public class NationalityServiceImpl implements NationalityService {
     private static final Logger LOG = LoggerFactory.getLogger(NationalityServiceImpl.class);
@@ -43,7 +41,7 @@ public class NationalityServiceImpl implements NationalityService {
             throw new InvalidInputException("Invalid nationalityId: " + body.getNationalityId());
         try {
             NationalityEntity entity = mapper.apiToEntity(body);
-            NationalityEntity newEntity = repository.save(entity).block();
+            NationalityEntity newEntity = repository.save(entity);
             LOG.debug("createNationality: created a nationality entity: {}", body.getNationalityId());
             return mapper.entityToApi(newEntity);
         } catch (DataIntegrityViolationException dive) {
@@ -54,20 +52,23 @@ public class NationalityServiceImpl implements NationalityService {
     @Override
     public Mono<Nationality> getNationality(int nationalityId) {
         if (nationalityId < 1) throw new InvalidInputException("Invalid nationalityId: " + nationalityId);
-        LOG.info("Will get nationality for player with id={}", nationalityId);
+        LOG.info("Will get nationality with id={}", nationalityId);
+        return Mono.just(getByNationalityId(nationalityId));
+    }
 
-        return repository.findByNationalityId(nationalityId)
-                .switchIfEmpty(error(new NotFoundException("No nationality found for nationalityId: " + nationalityId)))
-                .log()
-                .map(mapper::entityToApi)
-                .map(e -> {e.setServiceAddress(serviceUtil.getServiceAddress()); return e;});
+    protected Nationality getByNationalityId(int nationalityId) {
+        NationalityEntity entity = repository.findByNationalityId(nationalityId);
+        Nationality api = mapper.entityToApi(entity);
+        api.setServiceAddress(serviceUtil.getServiceAddress());
+        LOG.debug("getNationality");
+        return api;
     }
 
     @Override
     public void deleteNationality(int nationalityId) {
         if (nationalityId < 1) throw new InvalidInputException("Invalid nationalityId: " + nationalityId);
         LOG.debug("deleteNationality: tries to delete nationality with nationalityId: {}", nationalityId);
-        repository.findByNationalityId(nationalityId).log().map(repository::delete).flatMap(e -> e).block();
+        repository.delete(repository.findByNationalityId(nationalityId));
     }
 
     private <T> Flux<T> asyncFlux(Supplier<Publisher<T>> publisherSupplier) {

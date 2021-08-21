@@ -11,7 +11,7 @@ public class NationalitySummary {
         this.abbreviation = null;
     }
 
-    public NationalitySummary(int nationalityId, String name, String abbreviation, String content) {
+    public NationalitySummary(int nationalityId, String name, String abbreviation) {
         this.nationalityId = nationalityId;
         this.name = name;
         this.abbreviation = abbreviation;

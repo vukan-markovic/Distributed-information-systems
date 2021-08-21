@@ -14,7 +14,7 @@ public interface PlayerCompositeService {
      * <p>
      * curl -X POST $HOST:$PORT/player-composite \
      * -H "Content-Type: application/json" --data \
-     * '{"playerId":123,"name":"Cristiano","surname":"Ronaldo","registrationNumber":"324343","dateOfBirth":"1980-01-21", "nationalityId": 1, "teamId": 1,"nationalTeamId":1}'
+     * '{"playerId":123,"name":"Cristiano","surname":"Ronaldo","registrationNumber":"324343","dateOfBirth":"1980-01-21", "nationalityId": 1, "teamId": 1,"nationalteamId":1}'
      *
      * @param body
      */

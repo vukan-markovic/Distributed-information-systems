@@ -12,12 +12,15 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.magnus.api.composite.player.*;
-import se.magnus.api.core.nationalTeam.NationalTeam;
+import se.magnus.api.core.nationality.Nationality;
+import se.magnus.api.core.nationalteam.NationalTeam;
 import se.magnus.api.core.player.Player;
 import se.magnus.api.core.team.Team;
 import se.magnus.api.event.Event;
 import se.magnus.microservices.composite.player.services.PlayerCompositeIntegration;
+
 import java.util.concurrent.BlockingQueue;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -36,8 +39,9 @@ import static se.magnus.microservices.composite.player.IsSameEvent.sameEventExce
         properties = {"spring.main.allow-bean-definition-overriding=true", "eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
 public class MessagingTests {
     BlockingQueue<Message<?>> queuePlayers = null;
-    BlockingQueue<Message<?>> queueRecommendations = null;
-    BlockingQueue<Message<?>> queueReviews = null;
+    BlockingQueue<Message<?>> queueTeams = null;
+    BlockingQueue<Message<?>> queueNationalities = null;
+    BlockingQueue<Message<?>> queueNationalTeams = null;
 
     @Autowired
     private WebTestClient client;
@@ -51,42 +55,49 @@ public class MessagingTests {
     @Before
     public void setUp() {
         queuePlayers = getQueue(channels.outputPlayers());
-        queueRecommendations = getQueue(channels.outputTeams());
-        queueReviews = getQueue(channels.outputNationalities());
+        queueTeams = getQueue(channels.outputTeams());
+        queueNationalities = getQueue(channels.outputNationalities());
+        queueNationalTeams = getQueue(channels.outputNationalTeams());
     }
 
     @Test
     public void createCompositePlayer1() {
         PlayerAggregate composite = new PlayerAggregate(1, "name", "surname", "reg number", "a",
-                new TeamSummary(1, "a", "c", "c", new LeagueSummary(1, "a", "b")),
-                new NationalitySummary(1, "a", "s", "c"), new NationalTeamSummary(1, "a", "b", "c"), null);
+                null, null, null, null, null);
 
         postAndVerifyPlayer(composite, OK);
         assertEquals(1, queuePlayers.size());
-        Event<Integer, Player> expectedPlayerEvent = new Event(CREATE, composite.getPlayerId(), new Player(composite.getPlayerId(), composite.getName(), composite.getSurname(), composite.getRegistration_number(), composite.getDateOfBirth(), composite.getNationality().getNationalityId(), composite.getTeam().getTeamId(), composite.getNationalTeam().getNationalTeamId(), null));
+        Event<Integer, Player> expectedPlayerEvent = new Event(CREATE, composite.getPlayerId(), new Player(composite.getPlayerId(), composite.getName(), composite.getSurname(), composite.getRegistrationNumber(), composite.getDateOfBirth(), composite.getNationality().getNationalityId(), composite.getNationalTeam().getNationalTeamId(), composite.getTeam().getTeamId(), composite.getLeague().getLeagueId(), null));
         assertThat(queuePlayers, is(receivesPayloadThat(sameEventExceptCreatedAt(expectedPlayerEvent))));
-        assertEquals(0, queueRecommendations.size());
-        assertEquals(0, queueReviews.size());
+        assertEquals(0, queueTeams.size());
+        assertEquals(0, queueNationalities.size());
     }
 
     @Test
     public void createCompositePlayer2() {
         PlayerAggregate composite = new PlayerAggregate(1, "name", "surname", "reg number", "a",
-                new TeamSummary(1, "a", "c", "c", new LeagueSummary(1, "a", "b")),
-                new NationalitySummary(1, "a", "s", "c"), new NationalTeamSummary(1, "a", "b", "c"), null);
+                new TeamSummary(1, "a", "c", "c"),
+                new NationalitySummary(1, "a", "s"), new NationalTeamSummary(1, "a", "b"), new LeagueSummary(1, "a", "b"), null);
 
         postAndVerifyPlayer(composite, OK);
         assertEquals(1, queuePlayers.size());
-        Event<Integer, Player> expectedPlayerEvent = new Event(CREATE, composite.getPlayerId(), new Player(composite.getPlayerId(), composite.getName(), composite.getSurname(), composite.getRegistration_number(), composite.getDateOfBirth(), composite.getNationality().getNationalityId(), composite.getTeam().getTeamId(), composite.getNationalTeam().getNationalTeamId(), null));
+        Event<Integer, Player> expectedPlayerEvent = new Event(CREATE, composite.getPlayerId(), new Player(composite.getPlayerId(), composite.getName(), composite.getSurname(), composite.getRegistrationNumber(), composite.getDateOfBirth(), composite.getNationality().getNationalityId(), composite.getNationalTeam().getNationalTeamId(), composite.getTeam().getTeamId(), composite.getLeague().getLeagueId(), null));
         assertThat(queuePlayers, receivesPayloadThat(sameEventExceptCreatedAt(expectedPlayerEvent)));
-        assertEquals(1, queueRecommendations.size());
+
+        assertEquals(1, queueTeams.size());
         TeamSummary team = composite.getTeam();
-        Event<Integer, Player> expectedRecommendationEvent = new Event(CREATE, composite.getPlayerId(), new Team(composite.getPlayerId(), team.getTeamId(), team.getName(), team.getFounded(), team.getCity(), null));
-        assertThat(queueRecommendations, receivesPayloadThat(sameEventExceptCreatedAt(expectedRecommendationEvent)));
-        assertEquals(1, queueReviews.size());
+        Event<Integer, Player> expectedTeamEvent = new Event(CREATE, composite.getPlayerId(), new Team(team.getTeamId(), team.getName(), team.getFounded(), team.getCity(), null));
+        assertThat(queueTeams, receivesPayloadThat(sameEventExceptCreatedAt(expectedTeamEvent)));
+
+        assertEquals(1, queueNationalities.size());
         NationalitySummary nationality = composite.getNationality();
-        Event<Integer, Player> expectedReviewEvent = new Event(CREATE, composite.getPlayerId(), new NationalTeam(nationality.getNationalityId(), team.getName(), nationality.getAbbreviation(), null));
-        assertThat(queueReviews, receivesPayloadThat(sameEventExceptCreatedAt(expectedReviewEvent)));
+        Event<Integer, Player> expectedNationalityEvent = new Event(CREATE, composite.getPlayerId(), new Nationality(nationality.getNationalityId(), nationality.getName(), nationality.getAbbreviation(), null));
+        assertThat(queueNationalities, receivesPayloadThat(sameEventExceptCreatedAt(expectedNationalityEvent)));
+
+        assertEquals(1, queueNationalTeams.size());
+        NationalTeamSummary nationalteam = composite.getNationalTeam();
+        Event<Integer, Player> expectedNationalTeamEvent = new Event(CREATE, composite.getPlayerId(), new NationalTeam(nationalteam.getNationalTeamId(), nationalteam.getName(), nationalteam.getTeamSelector(), null));
+        assertThat(queueNationalTeams, receivesPayloadThat(sameEventExceptCreatedAt(expectedNationalTeamEvent)));
     }
 
     @Test
@@ -95,12 +106,6 @@ public class MessagingTests {
         assertEquals(1, queuePlayers.size());
         Event<Integer, Player> expectedEvent = new Event(DELETE, 1, null);
         assertThat(queuePlayers, is(receivesPayloadThat(sameEventExceptCreatedAt(expectedEvent))));
-        assertEquals(1, queueRecommendations.size());
-        Event<Integer, Player> expectedRecommendationEvent = new Event(DELETE, 1, null);
-        assertThat(queueRecommendations, receivesPayloadThat(sameEventExceptCreatedAt(expectedRecommendationEvent)));
-        assertEquals(1, queueReviews.size());
-        Event<Integer, Player> expectedReviewEvent = new Event(DELETE, 1, null);
-        assertThat(queueReviews, receivesPayloadThat(sameEventExceptCreatedAt(expectedReviewEvent)));
     }
 
     private BlockingQueue<Message<?>> getQueue(MessageChannel messageChannel) {

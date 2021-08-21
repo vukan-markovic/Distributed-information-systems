@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
 
+@SuppressWarnings("ALL")
 @Configuration
 public class HealthCheckConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckConfiguration.class);
@@ -32,7 +33,7 @@ public class HealthCheckConfiguration {
         registry.register("team", () -> getHealth("http://team"));
         registry.register("nationality", () -> getHealth("http://nationality"));
         registry.register("league", () -> getHealth("http://league"));
-        registry.register("nationalTeam", () -> getHealth("http://nationalTeam"));
+        registry.register("nationalteam", () -> getHealth("http://nationalteam"));
         registry.register("player-composite", () -> getHealth("http://player-composite"));
         return new CompositeReactiveHealthIndicator(healthAggregator, registry);
     }

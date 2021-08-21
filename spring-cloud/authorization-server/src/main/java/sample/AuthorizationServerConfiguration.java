@@ -164,6 +164,7 @@ class UserConfig extends WebSecurityConfigurerAdapter {
  * <p>
  * This class adds ad-hoc support in order to better support the other samples in the repo.
  */
+@SuppressWarnings("ALL")
 @FrameworkEndpoint
 class IntrospectEndpoint {
     TokenStore tokenStore;
@@ -198,6 +199,7 @@ class IntrospectEndpoint {
  * <p>
  * This class adds ad-hoc support in order to better support the other samples in the repo.
  */
+@SuppressWarnings("ALL")
 @FrameworkEndpoint
 class JwkSetEndpoint {
     KeyPair keyPair;

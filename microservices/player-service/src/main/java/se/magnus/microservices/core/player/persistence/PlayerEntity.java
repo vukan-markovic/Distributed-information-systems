@@ -2,12 +2,14 @@ package se.magnus.microservices.core.player.persistence;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import static java.lang.String.format;
 
 @Document(collection = "players")
+@CompoundIndex(name = "player-id", unique = true, def = "{'playerId': 1, 'nationalityId': 1, 'nationalteamId': 1, 'teamId': 1, 'leagueId: 1'}")
 public class PlayerEntity {
 
     @Id
@@ -23,16 +25,24 @@ public class PlayerEntity {
     private String surname;
     private String registrationNumber;
     private String dateOfBirth;
+    private int nationalteamId;
+    private int nationalityId;
+    private int teamId;
+    private int leagueId;
 
     public PlayerEntity() {
     }
 
-    public PlayerEntity(int playerId, String name, String surname, String registrationNumber, String dateOfBirth) {
+    public PlayerEntity(int playerId, String name, String surname, String registrationNumber, String dateOfBirth, int nationalteamId, int nationalityId, int teamId, int leagueId) {
         this.playerId = playerId;
         this.name = name;
         this.surname = surname;
         this.registrationNumber = registrationNumber;
         this.dateOfBirth = dateOfBirth;
+        this.nationalteamId = nationalteamId;
+        this.nationalityId = nationalityId;
+        this.teamId = teamId;
+        this.leagueId = leagueId;
     }
 
     @Override
@@ -94,5 +104,37 @@ public class PlayerEntity {
 
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public int getNationalTeamId() {
+        return nationalteamId;
+    }
+
+    public void setNationalTeamId(int nationalteamId) {
+        this.nationalteamId = nationalteamId;
+    }
+
+    public int getNationalityId() {
+        return nationalityId;
+    }
+
+    public void setNationalityId(int nationalityId) {
+        this.nationalityId = nationalityId;
+    }
+
+    public int getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(int teamId) {
+        this.teamId = teamId;
+    }
+
+    public int getLeagueId() {
+        return leagueId;
+    }
+
+    public void setLeagueId(int leagueId) {
+        this.leagueId = leagueId;
     }
 }
