@@ -4,8 +4,7 @@
 
 
 
-## Dijagrami mikroservisnog sistema 
-
+## Dijagrami mikroservisnog sistema
 ### Dijagram baze podataka
 
 ![1](https://i.ibb.co/J53j6m0/database-diagram.png) 
