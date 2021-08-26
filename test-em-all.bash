@@ -8,12 +8,6 @@
 : ${PLAYER_ID_REVS_RECS=2}
 # shellcheck disable=SC2223
 : ${PLAYER_ID_NOT_FOUND=13}
-# shellcheck disable=SC2223
-: ${PLAYER_ID_NO_TEAM=114}
-# shellcheck disable=SC2223
-: ${PLAYER_ID_NO_NATIONALITY=214}
-# shellcheck disable=SC2223
-: ${PLAYER_ID_NO_NATIONALTEAM=314}
 
 function assertCurl() {
   local expectedHttpCode=$1

@@ -5,16 +5,16 @@ import org.springframework.web.bind.annotation.*;
 public interface NationalityService {
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X POST $HOST:$PORT/nationality \
-     *   -H "Content-Type: application/json" --data \
-     *   '{"nationalityId":123,"name":"nationality 123","abbreviation":"n"}'
+     * -H "Content-Type: application/json" --data \
+     * '{"nationalityId":123,"name":"nationality 123","abbreviation":"n"}'
      *
      * @param body
      * @return
      */
     @PostMapping(
-            value    = "/nationality",
+            value = "/nationality",
             consumes = "application/json",
             produces = "application/json")
     Nationality createNationality(@RequestBody Nationality body);
@@ -32,7 +32,7 @@ public interface NationalityService {
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X DELETE $HOST:$PORT/nationality/1
      *
      * @param nationalityId

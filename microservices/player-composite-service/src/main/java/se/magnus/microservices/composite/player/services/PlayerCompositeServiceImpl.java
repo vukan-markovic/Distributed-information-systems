@@ -49,7 +49,7 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
                     body.getSurname(),
                     body.getRegistrationNumber(),
                     body.getDateOfBirth(),
-                    1,
+                    body.getNationality().getNationalityId(),
                     body.getNationality().getNationalityId(),
                     body.getTeam().getTeamId(),
                     body.getLeague().getLeagueId(),

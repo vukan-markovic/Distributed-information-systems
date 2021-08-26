@@ -3,9 +3,7 @@ package se.magnus.microservices.core.league.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.dao.DataIntegrityViolationException;
-
 import org.springframework.web.bind.annotation.RestController;
 import se.magnus.api.core.league.League;
 import se.magnus.api.core.league.LeagueService;

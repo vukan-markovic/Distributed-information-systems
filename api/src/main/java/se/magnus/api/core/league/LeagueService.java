@@ -2,19 +2,19 @@ package se.magnus.api.core.league;
 
 import org.springframework.web.bind.annotation.*;
 
-public interface    LeagueService {
+public interface LeagueService {
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X POST $HOST:$PORT/league \
-     *   -H "Content-Type: application/json" --data \
-     *   '{"leagueId":123,"name":"league 123","label":"l"}'
+     * -H "Content-Type: application/json" --data \
+     * '{"leagueId":123,"name":"league 123","label":"l"}'
      *
      * @param body
      * @return
      */
     @PostMapping(
-            value    = "/league",
+            value = "/league",
             consumes = "application/json",
             produces = "application/json")
     League createLeague(@RequestBody League body);
@@ -32,7 +32,7 @@ public interface    LeagueService {
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X DELETE $HOST:$PORT/league/1
      *
      * @param leagueId

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -31,11 +30,11 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     private static final Logger LOG = LoggerFactory.getLogger(PlayerCompositeIntegration.class);
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
-    private final String playerServiceUrl = "http://player" ;
-    private final String nationalteamServiceUrl = "http://nationalteam" ;
-    private final String teamServiceUrl = "http://team" ;
-    private final String nationalityServiceUrl = "http://nationality" ;
-    private final String leagueServiceUrl = "http://league" ;
+    private final String playerServiceUrl = "http://player";
+    private final String nationalteamServiceUrl = "http://nationalteam";
+    private final String teamServiceUrl = "http://team";
+    private final String nationalityServiceUrl = "http://nationality";
+    private final String leagueServiceUrl = "http://league";
 
     @Autowired
     public PlayerCompositeIntegration(
@@ -136,7 +135,7 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     @Override
     public NationalTeam createNationalTeam(NationalTeam body) {
         try {
-            String url = nationalityServiceUrl;
+            String url = nationalteamServiceUrl;
             LOG.debug("Will post a new national team to URL: {}", url);
 
             NationalTeam nationalTeam = restTemplate.postForObject(url, body, NationalTeam.class);

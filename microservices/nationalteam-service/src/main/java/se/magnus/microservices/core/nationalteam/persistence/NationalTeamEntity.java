@@ -5,7 +5,7 @@ import javax.persistence.*;
 import static java.lang.String.format;
 
 @Entity
-@Table(name = "nationalteam", indexes = { @Index(name = "nationalteam_unique_idx", unique = true, columnList = "nationalteamId") })
+@Table(name = "nationalteam", indexes = {@Index(name = "nationalteam_unique_idx", unique = true, columnList = "nationalteamId")})
 public class NationalTeamEntity {
     @Id
     @GeneratedValue

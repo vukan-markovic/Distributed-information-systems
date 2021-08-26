@@ -58,7 +58,7 @@ public class PersistenceTests {
     }
 
     @Test
-    public void getByLeagueId() {
+    public void getByNationalityId() {
         NationalityEntity entity = repository.findByNationalityId(savedEntity.getNationalityId()).get();
         assertEqualsNationality(savedEntity, entity);
     }

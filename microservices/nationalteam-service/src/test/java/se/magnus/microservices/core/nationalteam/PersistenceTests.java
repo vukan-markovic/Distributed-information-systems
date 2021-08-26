@@ -29,7 +29,7 @@ public class PersistenceTests {
         repository.deleteAll();
         NationalTeamEntity entity = new NationalTeamEntity(1, "a", "s");
         savedEntity = repository.save(entity);
-        assertEqualsTeam(entity, savedEntity);
+        assertEqualsNationalTeam(entity, savedEntity);
     }
 
     @Test
@@ -37,7 +37,7 @@ public class PersistenceTests {
         NationalTeamEntity newEntity = new NationalTeamEntity(3, "a", "s");
         repository.save(newEntity);
         NationalTeamEntity foundEntity = repository.findByNationalteamId(newEntity.getId()).get();
-        assertEqualsTeam(newEntity, foundEntity);
+        assertEqualsNationalTeam(newEntity, foundEntity);
         assertEquals(2, repository.count());
     }
 
@@ -59,7 +59,7 @@ public class PersistenceTests {
     @Test
     public void getByNationalTeamId() {
         NationalTeamEntity entity = repository.findByNationalteamId(savedEntity.getNationalTeamId()).get();
-        assertEqualsTeam(savedEntity, entity);
+        assertEqualsNationalTeam(savedEntity, entity);
     }
 
     @Test(expected = DataIntegrityViolationException.class)
@@ -87,7 +87,7 @@ public class PersistenceTests {
         assertEquals("a1", updatedEntity.getName());
     }
 
-    private void assertEqualsTeam(NationalTeamEntity expectedEntity, NationalTeamEntity actualEntity) {
+    private void assertEqualsNationalTeam(NationalTeamEntity expectedEntity, NationalTeamEntity actualEntity) {
         assertEquals(expectedEntity.getId(), actualEntity.getId());
         assertEquals(expectedEntity.getVersion(), actualEntity.getVersion());
         assertEquals(expectedEntity.getNationalTeamId(), actualEntity.getNationalTeamId());

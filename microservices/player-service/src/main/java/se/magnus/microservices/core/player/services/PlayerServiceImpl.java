@@ -13,8 +13,6 @@ import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
-import java.util.Random;
-
 @SuppressWarnings("ALL")
 @RestController
 public class PlayerServiceImpl implements PlayerService {
@@ -47,7 +45,8 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public Player getPlayer(int playerId) {
         if (playerId < 1) throw new InvalidInputException("Invalid playerId: " + playerId);
-        PlayerEntity entity = repository.findByPlayerId(playerId).orElseThrow(() -> new NotFoundException("No player found for playerId: " + playerId));;
+        PlayerEntity entity = repository.findByPlayerId(playerId).orElseThrow(() -> new NotFoundException("No player found for playerId: " + playerId));
+        ;
         Player api = mapper.entityToApi(entity);
         api.setServiceAddress(serviceUtil.getServiceAddress());
         LOG.debug("getPlayer");

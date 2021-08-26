@@ -11,7 +11,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import se.magnus.api.core.team.Team;
 import se.magnus.microservices.core.team.persistence.TeamRepository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

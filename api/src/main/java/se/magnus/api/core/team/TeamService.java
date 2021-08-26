@@ -5,16 +5,16 @@ import org.springframework.web.bind.annotation.*;
 public interface TeamService {
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X POST $HOST:$PORT/team \
-     *   -H "Content-Type: application/json" --data \
-     *   '{"teamId":123,"name":"name 123","founded":"01.02.2015.","city": "Belgrade"}'
+     * -H "Content-Type: application/json" --data \
+     * '{"teamId":123,"name":"name 123","founded":"01.02.2015.","city": "Belgrade"}'
      *
      * @param body
      * @return
      */
     @PostMapping(
-            value    = "/team",
+            value = "/team",
             consumes = "application/json",
             produces = "application/json")
     Team createTeam(@RequestBody Team body);
@@ -34,7 +34,7 @@ public interface TeamService {
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X DELETE $HOST:$PORT/team/1
      *
      * @param teamId

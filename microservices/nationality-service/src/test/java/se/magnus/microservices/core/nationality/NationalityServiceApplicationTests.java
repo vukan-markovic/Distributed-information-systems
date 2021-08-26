@@ -75,7 +75,7 @@ public class NationalityServiceApplicationTests {
     }
 
     @Test
-    public void getLeagueNotFound() {
+    public void getNationalityNotFound() {
         int nationalityIdNotFound = 13;
 
         getAndVerifyNationality(nationalityIdNotFound, NOT_FOUND)

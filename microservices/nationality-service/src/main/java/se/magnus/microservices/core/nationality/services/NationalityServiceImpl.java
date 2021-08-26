@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.scheduler.Scheduler;
 import se.magnus.api.core.nationality.Nationality;
 import se.magnus.api.core.nationality.NationalityService;
 import se.magnus.microservices.core.nationality.persistence.NationalityEntity;
@@ -46,7 +45,7 @@ public class NationalityServiceImpl implements NationalityService {
     @Override
     public Nationality getNationality(int nationalityId) {
         if (nationalityId < 1) throw new InvalidInputException("Invalid nationalityId: " + nationalityId);
-        NationalityEntity entity = repository.findByNationalityId(nationalityId).orElseThrow(() -> new NotFoundException("No nationality found for nationalityId: " + nationalityId));;
+        NationalityEntity entity = repository.findByNationalityId(nationalityId).orElseThrow(() -> new NotFoundException("No nationality found for nationalityId: " + nationalityId));
         Nationality api = mapper.entityToApi(entity);
         api.setServiceAddress(serviceUtil.getServiceAddress());
         LOG.debug("getNationality");

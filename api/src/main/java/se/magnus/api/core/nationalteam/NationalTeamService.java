@@ -5,16 +5,16 @@ import org.springframework.web.bind.annotation.*;
 public interface NationalTeamService {
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X POST $HOST:$PORT/nationalteam \
-     *   -H "Content-Type: application/json" --data \
-     *   '{"leagueId":123,"name":"name 123","teamSelector":"selector"}'
+     * -H "Content-Type: application/json" --data \
+     * '{"nationalteamId":123,"name":"name 123","teamSelector":"selector"}'
      *
      * @param body
      * @return
      */
     @PostMapping(
-            value    = "/nationalteam",
+            value = "/nationalteam",
             consumes = "application/json",
             produces = "application/json")
     NationalTeam createNationalTeam(@RequestBody NationalTeam body);
@@ -32,7 +32,7 @@ public interface NationalTeamService {
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X DELETE $HOST:$PORT/nationalteam/1
      *
      * @param nationalteamId
