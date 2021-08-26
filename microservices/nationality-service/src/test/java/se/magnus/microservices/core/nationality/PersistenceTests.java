@@ -57,6 +57,12 @@ public class PersistenceTests {
         assertFalse(repository.existsById(savedEntity.getId()));
     }
 
+    @Test
+    public void getByLeagueId() {
+        NationalityEntity entity = repository.findByNationalityId(savedEntity.getNationalityId()).get();
+        assertEqualsNationality(savedEntity, entity);
+    }
+
     @Test(expected = DataIntegrityViolationException.class)
     public void duplicateError() {
         NationalityEntity entity = new NationalityEntity(1, 2, "a", "s");

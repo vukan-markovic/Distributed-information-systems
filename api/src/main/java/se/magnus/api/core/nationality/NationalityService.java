@@ -1,11 +1,22 @@
 package se.magnus.api.core.nationality;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
 public interface NationalityService {
+    /**
+     * Sample usage:
+     *
+     * curl -X POST $HOST:$PORT/nationality \
+     *   -H "Content-Type: application/json" --data \
+     *   '{"nationalityId":123,"name":"nationality 123","abbreviation":"n"}'
+     *
+     * @param body
+     * @return
+     */
+    @PostMapping(
+            value    = "/nationality",
+            consumes = "application/json",
+            produces = "application/json")
     Nationality createNationality(@RequestBody Nationality body);
 
     /**
@@ -17,7 +28,15 @@ public interface NationalityService {
     @GetMapping(
             value = "/nationality/{nationalityId}",
             produces = "application/json")
-    Mono<Nationality> getNationality(@PathVariable int nationalityId);
+    Nationality getNationality(@PathVariable int nationalityId);
 
+    /**
+     * Sample usage:
+     *
+     * curl -X DELETE $HOST:$PORT/nationality/1
+     *
+     * @param nationalityId
+     */
+    @DeleteMapping(value = "/nationality/{nationalityId}")
     void deleteNationality(@PathVariable int nationalityId);
 }

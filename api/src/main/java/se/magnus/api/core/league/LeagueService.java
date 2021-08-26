@@ -1,11 +1,22 @@
 package se.magnus.api.core.league;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
-public interface LeagueService {
+public interface    LeagueService {
+    /**
+     * Sample usage:
+     *
+     * curl -X POST $HOST:$PORT/league \
+     *   -H "Content-Type: application/json" --data \
+     *   '{"leagueId":123,"name":"league 123","label":"l"}'
+     *
+     * @param body
+     * @return
+     */
+    @PostMapping(
+            value    = "/league",
+            consumes = "application/json",
+            produces = "application/json")
     League createLeague(@RequestBody League body);
 
     /**
@@ -17,7 +28,15 @@ public interface LeagueService {
     @GetMapping(
             value = "/league/{leagueId}",
             produces = "application/json")
-    Mono<League> getLeague(@PathVariable int leagueId);
+    League getLeague(@PathVariable int leagueId);
 
+    /**
+     * Sample usage:
+     *
+     * curl -X DELETE $HOST:$PORT/league/1
+     *
+     * @param leagueId
+     */
+    @DeleteMapping(value = "/league/{leagueId}")
     void deleteLeague(@PathVariable int leagueId);
 }

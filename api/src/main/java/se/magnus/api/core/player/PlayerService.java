@@ -1,12 +1,23 @@
 package se.magnus.api.core.player;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
 public interface PlayerService {
+    /**
+     * Sample usage:
+     *
+     * curl -X POST $HOST:$PORT/player \
+     *   -H "Content-Type: application/json" --data \
+     *   '{"playerId":123,"name":"123","surname":"456","registrationNumber":"reg num","dateOfBirth":"02-01-2020",
+     *   "nationalityId":1,"teamId": 1,"nationalteamId":1,"leagueId":1}'
+     *
+     * @param body
+     * @return
+     */
+    @PostMapping(
+            value    = "/player",
+            consumes = "application/json",
+            produces = "application/json")
     Player createPlayer(@RequestBody Player body);
 
     /**
@@ -18,11 +29,15 @@ public interface PlayerService {
     @GetMapping(
             value = "/player/{playerId}",
             produces = "application/json")
-    Mono<Player> getPlayer(
-            @PathVariable int playerId,
-            @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
-            @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent
-    );
+    Player getPlayer(@PathVariable int playerId);
 
+    /**
+     * Sample usage:
+     *
+     * curl -X DELETE $HOST:$PORT/player/1
+     *
+     * @param playerId
+     */
+    @DeleteMapping(value = "/player/{playerId}")
     void deletePlayer(@PathVariable int playerId);
 }

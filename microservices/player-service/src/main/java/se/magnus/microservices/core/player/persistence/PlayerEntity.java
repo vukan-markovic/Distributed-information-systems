@@ -1,26 +1,21 @@
 package se.magnus.microservices.core.player.persistence;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.*;
 
 import static java.lang.String.format;
 
-@Document(collection = "players")
-@CompoundIndex(name = "player-id", unique = true, def = "{'playerId': 1, 'nationalityId': 1, 'nationalteamId': 1, 'teamId': 1, 'leagueId: 1'}")
+@Entity
+@Table(name = "player", indexes = { @Index(name = "player_unique_idx", unique = true, columnList = "playerId") })
 public class PlayerEntity {
 
     @Id
-    private String id;
+    @GeneratedValue
+    private int id;
 
     @Version
-    private Integer version;
+    private int version;
 
-    @Indexed(unique = true)
     private int playerId;
-
     private String name;
     private String surname;
     private String registrationNumber;
@@ -50,19 +45,19 @@ public class PlayerEntity {
         return format("PlayerEntity: %s", playerId);
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 

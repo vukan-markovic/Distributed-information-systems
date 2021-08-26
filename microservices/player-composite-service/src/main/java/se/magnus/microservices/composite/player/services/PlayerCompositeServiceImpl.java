@@ -1,16 +1,14 @@
 package se.magnus.microservices.composite.player.services;
 
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import se.magnus.api.composite.player.*;
 import se.magnus.api.core.league.League;
 import se.magnus.api.core.nationality.Nationality;
@@ -37,15 +35,26 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
     }
 
     @Override
-    public Mono<Void> createCompositePlayer(PlayerAggregate body) {
-        return ReactiveSecurityContextHolder.getContext().doOnSuccess(sc -> internalCreateCompositePlayer(sc, body)).then();
+    public void createCompositePlayer(PlayerAggregate body) {
+        internalCreateCompositePlayer(SecurityContextHolder.getContext(), body);
     }
 
-    public void internalCreateCompositePlayer(SecurityContext sc, PlayerAggregate body) {
+    public void internalCreateCompositePlayer(SecurityContext context, PlayerAggregate body) {
         try {
-            logAuthorizationInfo(sc);
+            logAuthorizationInfo(context);
             LOG.debug("createCompositePlayer: creates a new composite entity for playerId: {}", body.getPlayerId());
-            Player player = new Player(body.getPlayerId(), body.getName(), body.getSurname(), body.getRegistrationNumber(), body.getDateOfBirth(), body.getNationality().getNationalityId(), body.getNationalTeam().getNationalTeamId(), body.getTeam().getTeamId(), body.getLeague().getLeagueId(), null);
+
+            Player player = new Player(body.getPlayerId(),
+                    body.getName(),
+                    body.getSurname(),
+                    body.getRegistrationNumber(),
+                    body.getDateOfBirth(),
+                    1,
+                    body.getNationality().getNationalityId(),
+                    body.getTeam().getTeamId(),
+                    body.getLeague().getLeagueId(),
+                    null);
+
             integration.createPlayer(player);
 
             if (body.getTeam() != null) {
@@ -69,43 +78,42 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
             }
 
             LOG.debug("createCompositePlayer: composite entities created for playerId: {}", body.getPlayerId());
-
-        } catch (RuntimeException re) {
-            LOG.warn("createCompositePlayer failed: {}", re.toString());
-            throw re;
+        } catch (RuntimeException exception) {
+            LOG.warn("createCompositePlayer failed: {}", exception.getLocalizedMessage());
+            throw exception;
         }
     }
 
     @Override
-    public Mono<PlayerAggregate> getCompositePlayer(int playerId, int delay, int faultPercent) {
-        return Mono.zip(
-                values -> createPlayerAggregate((SecurityContext) values[0], (Player) values[1], (Team) values[2], (NationalTeam) values[3], (Nationality) values[4], (League) values[5], serviceUtil.getServiceAddress()),
-                ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
-                integration.getPlayer(playerId, delay, faultPercent)
-                        .onErrorReturn(CallNotPermittedException.class, getPlayerFallbackValue(playerId)),
-                integration.getTeam(playerId),
-                integration.getNationalTeam(playerId),
-                integration.getNationality(playerId)
-                        .doOnError(ex -> LOG.warn("getCompositePlayer failed: {}", ex.toString()))
-                        .log());
+    public PlayerAggregate getCompositePlayer(int playerId) {
+        LOG.debug("getCompositePlayer: lookup a player aggregate for playerId: {}", playerId);
+
+        Player player = integration.getPlayer(playerId);
+        if (player == null) throw new NotFoundException("No player found for playerId: " + playerId);
+
+        Nationality nationality = integration.getNationality(player.getNationalityId());
+        NationalTeam nationalTeam = integration.getNationalTeam(player.getNationalTeamId());
+        Team team = integration.getTeam(player.getTeamId());
+        League league = integration.getLeague(player.getLeagueId());
+
+        LOG.debug("getCompositePlayer: aggregate entity found for playerId: {}", playerId);
+
+        return createPlayerAggregate(SecurityContextHolder.getContext(), player, team, nationalTeam, nationality, league, serviceUtil.getServiceAddress());
     }
 
     @Override
-    public Mono<Void> deleteCompositePlayer(int playerId) {
-        return ReactiveSecurityContextHolder.getContext().doOnSuccess(sc -> internalDeleteCompositePlayer(sc, playerId)).then();
+    public void deleteCompositePlayer(int playerId) {
+        internalDeleteCompositePlayer(SecurityContextHolder.getContext(), playerId);
     }
 
-    private void internalDeleteCompositePlayer(SecurityContext sc, int playerId) {
+    private void internalDeleteCompositePlayer(SecurityContext context, int playerId) {
         try {
-            logAuthorizationInfo(sc);
+            logAuthorizationInfo(context);
             LOG.debug("deleteCompositePlayer: Deletes a player aggregate for playerId: {}", playerId);
             integration.deletePlayer(playerId);
-            integration.deleteTeam(playerId);
-            integration.deleteNationalTeam(playerId);
-            LOG.debug("deleteCompositePlayer: aggregate entities deleted for playerId: {}", playerId);
-        } catch (RuntimeException re) {
-            LOG.warn("deleteCompositePlayer failed: {}", re.toString());
-            throw re;
+        } catch (RuntimeException exception) {
+            LOG.warn("deleteCompositePlayer failed: {}", exception.toString());
+            throw exception;
         }
     }
 
@@ -121,8 +129,8 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
         return new Player(playerId, "Fallback player" + playerId, "surname", "reg num", "02.02.2021.", 1, 1, 1, 1, serviceUtil.getServiceAddress());
     }
 
-    private PlayerAggregate createPlayerAggregate(SecurityContext sc, Player player, Team team, NationalTeam nationalteam, Nationality nationality, League league, String serviceAddress) {
-        logAuthorizationInfo(sc);
+    private PlayerAggregate createPlayerAggregate(SecurityContext context, Player player, Team team, NationalTeam nationalteam, Nationality nationality, League league, String serviceAddress) {
+        logAuthorizationInfo(context);
 
         LeagueSummary leagueSummary = (league == null) ? null :
                 new LeagueSummary(league.getLeagueId(), league.getName(), league.getLabel());
@@ -141,13 +149,13 @@ public class PlayerCompositeServiceImpl implements PlayerCompositeService {
         String teamAddress = (team != null) ? team.getServiceAddress() : "";
         String nationalteamAddress = (nationalteam != null) ? nationalteam.getServiceAddress() : "";
         String leagueAddress = (league != null) ? league.getServiceAddress() : "";
-        ServiceAddresses serviceAddresses = new ServiceAddresses(serviceAddress, playerAddress, nationalityAddress, teamAddress, nationalteamAddress, leagueAddress);
+        ServiceAddresses serviceAddresses = new ServiceAddresses(serviceAddress, playerAddress, nationalityAddress, teamAddress, leagueAddress, nationalteamAddress);
         return new PlayerAggregate(player.getPlayerId(), player.getName(), player.getSurname(), player.getRegistrationNumber(), player.getDateOfBirth(), teamSummary, nationalitySummary, nationalteamSummary, leagueSummary, serviceAddresses);
     }
 
-    private void logAuthorizationInfo(SecurityContext sc) {
-        if (sc != null && sc.getAuthentication() != null && sc.getAuthentication() instanceof JwtAuthenticationToken) {
-            Jwt jwtToken = ((JwtAuthenticationToken) sc.getAuthentication()).getToken();
+    private void logAuthorizationInfo(SecurityContext context) {
+        if (context != null && context.getAuthentication() != null && context.getAuthentication() instanceof JwtAuthenticationToken) {
+            Jwt jwtToken = ((JwtAuthenticationToken) context.getAuthentication()).getToken();
             logAuthorizationInfo(jwtToken);
         } else LOG.warn("No JWT based Authentication supplied, running tests are we?");
     }

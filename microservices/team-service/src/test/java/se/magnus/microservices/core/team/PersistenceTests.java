@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +47,7 @@ public class PersistenceTests {
         savedEntity.setName("a2");
         repository.save(savedEntity);
         TeamEntity foundEntity = repository.findById(savedEntity.getId()).get();
-        assertEquals(1, (long) foundEntity.getVersion());
+        assertEquals(1, foundEntity.getVersion());
         assertEquals("a2", foundEntity.getName());
     }
 
@@ -59,11 +59,11 @@ public class PersistenceTests {
 
     @Test
     public void getByTeamId() {
-        TeamEntity entity = repository.findByTeamId(savedEntity.getTeamId());
+        TeamEntity entity = repository.findByTeamId(savedEntity.getTeamId()).get();
         assertEqualsTeam(savedEntity, entity);
     }
 
-    @Test(expected = DuplicateKeyException.class)
+    @Test(expected = DataIntegrityViolationException.class)
     public void duplicateError() {
         TeamEntity entity = new TeamEntity(1, "a", "02.02.2021.", "c");
         repository.save(entity);
@@ -84,7 +84,7 @@ public class PersistenceTests {
         }
 
         TeamEntity updatedEntity = repository.findById(savedEntity.getId()).get();
-        assertEquals(1, (int) updatedEntity.getVersion());
+        assertEquals(1, updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getName());
     }
 

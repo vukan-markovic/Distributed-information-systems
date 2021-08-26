@@ -1,23 +1,20 @@
 package se.magnus.microservices.core.nationalteam.persistence;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.*;
 
 import static java.lang.String.format;
 
-@Document(collection = "nationalteams")
+@Entity
+@Table(name = "nationalteam", indexes = { @Index(name = "nationalteam_unique_idx", unique = true, columnList = "nationalteamId") })
 public class NationalTeamEntity {
     @Id
-    private String id;
+    @GeneratedValue
+    private int id;
 
     @Version
-    private Integer version;
+    private int version;
 
-    @Indexed(unique = true)
     private int nationalteamId;
-
     private String name;
     private String teamSelector;
 
@@ -35,19 +32,19 @@ public class NationalTeamEntity {
         return format("NationalTeamEntity: %d", nationalteamId);
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 

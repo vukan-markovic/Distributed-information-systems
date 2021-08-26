@@ -58,7 +58,7 @@ public class PersistenceTests {
 
     @Test
     public void getByLeagueId() {
-        LeagueEntity entity = repository.findByLeagueId(savedEntity.getLeagueId());
+        LeagueEntity entity = repository.findByLeagueId(savedEntity.getLeagueId()).get();
         assertEqualsLeague(savedEntity, entity);
     }
 

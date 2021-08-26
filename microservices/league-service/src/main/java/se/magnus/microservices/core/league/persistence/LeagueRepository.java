@@ -2,6 +2,8 @@ package se.magnus.microservices.core.league.persistence;
 
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
+
 public interface LeagueRepository extends CrudRepository<LeagueEntity, Integer> {
-    LeagueEntity findByLeagueId(int leagueId);
+    Optional<LeagueEntity> findByLeagueId(int leagueId);
 }

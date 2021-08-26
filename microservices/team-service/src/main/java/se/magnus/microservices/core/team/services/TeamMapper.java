@@ -8,7 +8,6 @@ import se.magnus.microservices.core.team.persistence.TeamEntity;
 
 @Mapper(componentModel = "spring")
 public interface TeamMapper {
-
     @Mappings({
             @Mapping(target = "serviceAddress", ignore = true)
     })

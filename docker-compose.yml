@@ -11,9 +11,7 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
+      mysql1:
         condition: service_healthy
 
   team:
@@ -28,8 +26,6 @@ services:
     depends_on:
       mysql2:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
   nationality:
     build: microservices/nationality-service
@@ -43,8 +39,6 @@ services:
     depends_on:
       mysql3:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
   league:
     build: microservices/league-service
@@ -56,9 +50,7 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      mysql1:
-        condition: service_healthy
-      rabbitmq:
+      mysql4:
         condition: service_healthy
 
   nationalteam:
@@ -71,9 +63,7 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
+      mysql5:
         condition: service_healthy
 
   player-composite:
@@ -85,9 +75,6 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
 
   eureka:
     build: spring-cloud/eureka-server
@@ -134,21 +121,6 @@ services:
     volumes:
       - $PWD/config-repo:/config-repo
 
-  # $ mongo
-  mongodb:
-    image: mongo:3.6.9
-    mem_limit: 350m
-    networks:
-      - my-network
-    ports:
-      - "27017:27017"
-    command: mongod --smallfiles
-    healthcheck:
-      test: "mongo --eval 'db.stats().ok'"
-      interval: 20s
-      timeout: 5s
-      retries: 10
-
   # $ mysql -u root -h127.0.0.1 -p
   mysql1:
     image: mysql:5.7
@@ -156,10 +128,10 @@ services:
     networks:
       - my-network
     ports:
-      - "3302:3306"
+      - "3300:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=rootpwd
-      - MYSQL_DATABASE=league-db
+      - MYSQL_DATABASE=player-db
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pwd
     healthcheck:
@@ -174,7 +146,7 @@ services:
     networks:
       - my-network
     ports:
-      - "3304:3306"
+      - "3301:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=rootpwd
       - MYSQL_DATABASE=team-db
@@ -192,10 +164,46 @@ services:
     networks:
       - my-network
     ports:
-      - "3306:3306"
+      - "3302:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=rootpwd
       - MYSQL_DATABASE=nationality-db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+    healthcheck:
+      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  mysql4:
+    image: mysql:5.7
+    mem_limit: 350m
+    networks:
+      - my-network
+    ports:
+      - "3303:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_DATABASE=league-db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+    healthcheck:
+      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  mysql5:
+    image: mysql:5.7
+    mem_limit: 350m
+    networks:
+      - my-network
+    ports:
+      - "3305:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_DATABASE=nationalteam-db
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pwd
     healthcheck:

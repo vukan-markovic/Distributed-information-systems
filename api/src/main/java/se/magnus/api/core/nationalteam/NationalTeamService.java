@@ -1,11 +1,22 @@
 package se.magnus.api.core.nationalteam;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
 public interface NationalTeamService {
+    /**
+     * Sample usage:
+     *
+     * curl -X POST $HOST:$PORT/nationalteam \
+     *   -H "Content-Type: application/json" --data \
+     *   '{"leagueId":123,"name":"name 123","teamSelector":"selector"}'
+     *
+     * @param body
+     * @return
+     */
+    @PostMapping(
+            value    = "/nationalteam",
+            consumes = "application/json",
+            produces = "application/json")
     NationalTeam createNationalTeam(@RequestBody NationalTeam body);
 
     /**
@@ -17,7 +28,15 @@ public interface NationalTeamService {
     @GetMapping(
             value = "/nationalteam/{nationalteamId}",
             produces = "application/json")
-    Mono<NationalTeam> getNationalTeam(@PathVariable int nationalteamId);
+    NationalTeam getNationalTeam(@PathVariable int nationalteamId);
 
+    /**
+     * Sample usage:
+     *
+     * curl -X DELETE $HOST:$PORT/nationalteam/1
+     *
+     * @param nationalteamId
+     */
+    @DeleteMapping(value = "/nationalteam/{nationalteamId}")
     void deleteNationalTeam(@PathVariable int nationalteamId);
 }

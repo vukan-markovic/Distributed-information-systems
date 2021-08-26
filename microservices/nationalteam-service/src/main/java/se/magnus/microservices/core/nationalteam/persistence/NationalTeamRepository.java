@@ -1,8 +1,9 @@
 package se.magnus.microservices.core.nationalteam.persistence;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.repository.CrudRepository;
 
-public interface NationalTeamRepository extends ReactiveCrudRepository<NationalTeamEntity, String> {
-    Mono<NationalTeamEntity> findByNationalteamId(int nationalteamId);
+import java.util.Optional;
+
+public interface NationalTeamRepository extends CrudRepository<NationalTeamEntity, Integer> {
+    Optional<NationalTeamEntity> findByNationalteamId(int nationalteamId);
 }

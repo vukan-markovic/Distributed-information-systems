@@ -1,8 +1,9 @@
 package se.magnus.microservices.core.player.persistence;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.repository.CrudRepository;
 
-public interface PlayerRepository extends ReactiveCrudRepository<PlayerEntity, String> {
-    Mono<PlayerEntity> findByPlayerId(int playerId);
+import java.util.Optional;
+
+public interface PlayerRepository extends CrudRepository<PlayerEntity, Integer> {
+    Optional<PlayerEntity> findByPlayerId(int playerId);
 }

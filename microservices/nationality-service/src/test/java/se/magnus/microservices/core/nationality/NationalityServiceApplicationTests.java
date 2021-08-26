@@ -5,25 +5,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.http.HttpStatus;
-import org.springframework.integration.channel.AbstractMessageChannel;
-import org.springframework.messaging.MessagingException;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.magnus.api.core.nationality.Nationality;
-import se.magnus.api.core.player.Player;
-import se.magnus.api.event.Event;
 import se.magnus.microservices.core.nationality.persistence.NationalityRepository;
-import se.magnus.util.exceptions.InvalidInputException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static se.magnus.api.event.Event.Type.CREATE;
-import static se.magnus.api.event.Event.Type.DELETE;
+import static reactor.core.publisher.Mono.just;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
@@ -39,25 +32,16 @@ public class NationalityServiceApplicationTests {
     @Autowired
     private NationalityRepository repository;
 
-    @Autowired
-    private Sink channels;
-
-    private AbstractMessageChannel input = null;
-
     @Before
     public void setupDb() {
-        input = (AbstractMessageChannel) channels.input();
         repository.deleteAll();
     }
 
     @Test
     public void getNationalityById() {
         int nationalityId = 1;
-        assertNull(repository.findByNationalityId(nationalityId));
-        assertEquals(0, repository.count());
-        sendCreateNationalityEvent(nationalityId);
-        assertNotNull(repository.findByNationalityId(nationalityId));
-        assertEquals(1, repository.count());
+        postAndVerifyNationality(nationalityId, OK);
+        assertTrue(repository.findByNationalityId(nationalityId).isPresent());
 
         getAndVerifyNationality(nationalityId, OK)
                 .jsonPath("$.nationalityId").isEqualTo(nationalityId);
@@ -66,32 +50,21 @@ public class NationalityServiceApplicationTests {
     @Test
     public void duplicateError() {
         int nationalityId = 1;
-        assertEquals(0, repository.count());
-        sendCreateNationalityEvent(nationalityId);
-        assertEquals(1, repository.count());
+        postAndVerifyNationality(nationalityId, OK);
+        assertTrue(repository.findByNationalityId(nationalityId).isPresent());
 
-        try {
-            sendCreateNationalityEvent(nationalityId);
-            fail("Expected a MessagingException here!");
-        } catch (MessagingException me) {
-            if (me.getCause() instanceof InvalidInputException) {
-                InvalidInputException iie = (InvalidInputException) me.getCause();
-                assertEquals("Duplicate key, Nationality Id: 1", iie.getMessage());
-            } else {
-                fail("Expected a InvalidInputException as the root cause!");
-            }
-        }
-
-        assertEquals(1, repository.count());
+        postAndVerifyNationality(nationalityId, UNPROCESSABLE_ENTITY)
+                .jsonPath("$.path").isEqualTo("/nationality")
+                .jsonPath("$.message").isEqualTo("Duplicate key, Nationality Id: " + nationalityId);
     }
 
     @Test
     public void deleteNationality() {
         int nationalityId = 1;
-        sendCreateNationalityEvent(nationalityId);
-        assertNotNull(repository.findByNationalityId(nationalityId));
-        sendDeleteNationalityEvent(nationalityId);
-        assertNull(repository.findByNationalityId(nationalityId));
+        postAndVerifyNationality(nationalityId, OK);
+        assertTrue(repository.findByNationalityId(nationalityId).isPresent());
+        deleteAndVerifyNationality(nationalityId, OK);
+        assertFalse(repository.findByNationalityId(nationalityId).isPresent());
     }
 
     @Test
@@ -99,6 +72,15 @@ public class NationalityServiceApplicationTests {
         getAndVerifyNationality("/no-integer", BAD_REQUEST)
                 .jsonPath("$.path").isEqualTo("/nationality/no-integer")
                 .jsonPath("$.message").isEqualTo("Type mismatch.");
+    }
+
+    @Test
+    public void getLeagueNotFound() {
+        int nationalityIdNotFound = 13;
+
+        getAndVerifyNationality(nationalityIdNotFound, NOT_FOUND)
+                .jsonPath("$.path").isEqualTo("/nationality/" + nationalityIdNotFound)
+                .jsonPath("$.message").isEqualTo("No nationality found for nationalityId: " + nationalityIdNotFound);
     }
 
     @Test
@@ -124,14 +106,25 @@ public class NationalityServiceApplicationTests {
                 .expectBody();
     }
 
-    private void sendCreateNationalityEvent(int nationalityId) {
+    private WebTestClient.BodyContentSpec postAndVerifyNationality(int nationalityId, HttpStatus expectedStatus) {
         Nationality nationality = new Nationality(nationalityId, "Name " + nationalityId, "Abbreviation " + nationalityId, "SA");
-        Event<Integer, Player> event = new Event(CREATE, nationalityId, nationality);
-        input.send(new GenericMessage<>(event));
+
+        return client.post()
+                .uri("/nationality")
+                .body(just(nationality), Nationality.class)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isEqualTo(expectedStatus)
+                .expectHeader().contentType(APPLICATION_JSON)
+                .expectBody();
     }
 
-    private void sendDeleteNationalityEvent(int nationalityId) {
-        Event<Integer, Player> event = new Event(DELETE, nationalityId, null);
-        input.send(new GenericMessage<>(event));
+    private WebTestClient.BodyContentSpec deleteAndVerifyNationality(int nationalityId, HttpStatus expectedStatus) {
+        return client.delete()
+                .uri("/nationality/" + nationalityId)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isEqualTo(expectedStatus)
+                .expectBody();
     }
 }

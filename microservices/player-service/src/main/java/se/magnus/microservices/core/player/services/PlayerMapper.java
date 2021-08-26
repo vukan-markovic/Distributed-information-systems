@@ -8,7 +8,6 @@ import se.magnus.microservices.core.player.persistence.PlayerEntity;
 
 @Mapper(componentModel = "spring")
 public interface PlayerMapper {
-
     @Mappings({
             @Mapping(target = "serviceAddress", ignore = true)
     })

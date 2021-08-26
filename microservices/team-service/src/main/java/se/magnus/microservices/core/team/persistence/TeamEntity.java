@@ -1,13 +1,11 @@
 package se.magnus.microservices.core.team.persistence;
 
-import org.springframework.data.annotation.Version;
-
 import javax.persistence.*;
 
 import static java.lang.String.format;
 
 @Entity
-@Table(name = "teams", indexes = {@Index(name = "teams_unique_idx", unique = true, columnList = "teamId")})
+@Table(name = "team", indexes = { @Index(name = "team_unique_idx", unique = true, columnList = "teamId") })
 public class TeamEntity {
     @Id
     @GeneratedValue
@@ -17,7 +15,6 @@ public class TeamEntity {
     private int version;
 
     private int teamId;
-
     private String name;
     private String founded;
     private String city;
@@ -45,11 +42,11 @@ public class TeamEntity {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 

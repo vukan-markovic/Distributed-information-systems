@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import se.magnus.api.core.team.Team;
 import se.magnus.api.core.team.TeamService;
 import se.magnus.microservices.core.team.persistence.TeamEntity;
 import se.magnus.microservices.core.team.persistence.TeamRepository;
 import se.magnus.util.exceptions.InvalidInputException;
+import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
 @SuppressWarnings("ALL")
@@ -30,8 +30,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Team createTeam(Team body) {
-        if (body.getTeamId() < 1)
-            throw new InvalidInputException("Invalid teamId: " + body.getTeamId());
+        if (body.getTeamId() < 1) throw new InvalidInputException("Invalid teamId: " + body.getTeamId());
 
         try {
             TeamEntity entity = mapper.apiToEntity(body);
@@ -44,13 +43,9 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public Mono<Team> getTeam(int teamId) {
+    public Team getTeam(int teamId) {
         if (teamId < 1) throw new InvalidInputException("Invalid teamId: " + teamId);
-        return Mono.just(getByTeamId(teamId));
-    }
-
-    protected Team getByTeamId(int teamId) {
-        TeamEntity entity = repository.findByTeamId(teamId);
+        TeamEntity entity = repository.findByTeamId(teamId).orElseThrow(() -> new NotFoundException("No team found for teamId: " + teamId));
         Team api = mapper.entityToApi(entity);
         api.setServiceAddress(serviceUtil.getServiceAddress());
         LOG.debug("getTeam");
@@ -61,6 +56,6 @@ public class TeamServiceImpl implements TeamService {
     public void deleteTeam(int teamId) {
         if (teamId < 1) throw new InvalidInputException("Invalid teamId: " + teamId);
         LOG.debug("deleteTeam: tries to delete team with teamId: {}", teamId);
-        repository.delete(repository.findByTeamId(teamId));
+        repository.delete(repository.findByTeamId(teamId).get());
     }
 }

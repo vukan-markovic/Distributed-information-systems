@@ -57,57 +57,9 @@ ribbon.ServerListRefreshInterval: 5000
 
 ribbon.NFLoadBalancerPingInterval: 5
 
-spring.cloud.stream:
-  defaultBinder: rabbit
-  default.contentType: application/json
-  bindings:
-    output-players:
-      destination: players
-      producer:
-        required-groups: auditGroup
-    output-nationalities:
-      destination: nationalities
-      producer:
-        required-groups: auditGroup
-    output-teams:
-      destination: teams
-      producer:
-        required-groups: auditGroup
-    output-nationalteams:
-      destination: nationalteams
-      producer:
-        required-groups: auditGroup
-    output-leagues:
-      destination: leagues
-      producer:
-        required-groups: auditGroup
-
 spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://${app.auth-server}:9999/.well-known/jwks.json
 
 app.player-service.timeoutSec: 2
-
-resilience4j.retry:
-  backends:
-    player:
-      maxRetryAttempts: 3
-      waitDuration: 1000
-      retryExceptions:
-        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
-
-management.health.circuitbreakers.enabled: true
-
-resilience4j.circuitbreaker:
-  backends:
-    player:
-      registerHealthIndicator: true
-      ringBufferSizeInClosedState: 5
-      failureRateThreshold: 50
-      waitDurationInOpenState: 10000
-      ringBufferSizeInHalfOpenState: 3
-      automaticTransitionFromOpenToHalfOpenEnabled: true
-      ignoreExceptions:
-        - se.magnus.util.exceptions.InvalidInputException
-        - se.magnus.util.exceptions.NotFoundException
 
 logging:
   level:
