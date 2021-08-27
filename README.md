@@ -1,27 +1,23 @@
-# Distribuirani informacioni sistemi 2020/21.
+# Distributed information systems 2020/21.
 
-## Opis poslovne logike mikroservisnog sistema
+## Description of business logic of microservice system
 
-U ovoj aplikaciji je implementiran mikroservisni sistem za upravljanje igračima fudbalskog tima. Mikroservisni sistem se
-sastoji od ukupno pet mikroservisa: Igrač, Tim, Nacionalnost, Reprezentacija i Liga. Igrač predstavlja glavni tj.
-kompozitni mikroservis koji je povezan sa svim ostalim servisima, odnosno svaki igrač ima svoj tim, nacionalnost,
-reprezentaciju i ligu. Upravljanje ovim sistemom je omogućeno izvršavanjem implementiranih CRUD operacija nad
-mikroservisnim instancama.
+This application implements a microservice system for managing football team players. The microservice system consists of a total of five microservices: Player, Team, Nationality, National Team, and League. The player represents the main ie. composite microservice that is connected to all other services, ie each player has his own team, nationality, national team and league. Management of this system is enabled by performing implemented CRUD operations on microservice instances.
 
-## Dijagrami mikroservisnog sistema
+## Microservice system diagrams
 
-### Dijagram baze podataka
+### Database diagram
 
 ![1](https://i.ibb.co/J53j6m0/database-diagram.png)
 
-### Dijagram mikroservisne arhitekture
+### Microservice architecture diagram
 
 ![2](https://i.ibb.co/FJbYBWx/architecture-diagram.png)
 
-## Uputstvo za upravljanje pipeline-om
+## Pipeline Management Guide
 
 ### Build/Test/Deploy
 
 ```
-/gradlew clean build && docker-compose build && docker-compose up -d
+./gradlew clean build && docker-compose build && docker-compose up -d
 ```
