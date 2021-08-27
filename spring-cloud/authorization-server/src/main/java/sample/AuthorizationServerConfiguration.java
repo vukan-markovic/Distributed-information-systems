@@ -67,7 +67,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
             AuthenticationConfiguration authenticationConfiguration,
             KeyPair keyPair,
             @Value("${security.oauth2.authorizationserver.jwt.enabled:true}") boolean jwtEnabled) throws Exception {
-
         this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
         this.keyPair = keyPair;
         this.jwtEnabled = jwtEnabled;

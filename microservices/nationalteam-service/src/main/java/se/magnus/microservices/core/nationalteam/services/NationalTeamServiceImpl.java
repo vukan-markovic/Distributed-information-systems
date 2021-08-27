@@ -51,7 +51,6 @@ class NationalTeamServiceImpl implements NationalTeamService {
         api.setServiceAddress(serviceUtil.getServiceAddress());
         LOG.debug("getNationalTeam");
         return api;
-
     }
 
     @Override

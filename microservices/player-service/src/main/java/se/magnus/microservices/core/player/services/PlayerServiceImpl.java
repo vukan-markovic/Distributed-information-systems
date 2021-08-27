@@ -46,7 +46,6 @@ public class PlayerServiceImpl implements PlayerService {
     public Player getPlayer(int playerId) {
         if (playerId < 1) throw new InvalidInputException("Invalid playerId: " + playerId);
         PlayerEntity entity = repository.findByPlayerId(playerId).orElseThrow(() -> new NotFoundException("No player found for playerId: " + playerId));
-        ;
         Player api = mapper.entityToApi(entity);
         api.setServiceAddress(serviceUtil.getServiceAddress());
         LOG.debug("getPlayer");

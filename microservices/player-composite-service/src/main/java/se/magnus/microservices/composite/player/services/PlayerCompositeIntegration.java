@@ -55,7 +55,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Created a player with id: {}", player.getPlayerId());
 
             return player;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -71,7 +70,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Found a player with id: {}", player.getPlayerId());
 
             return player;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -83,7 +81,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             URI url = UriComponentsBuilder.fromUriString(playerServiceUrl + "/player/{playerId}").build(playerId);
             LOG.debug("Will call the deletePlayer API on URL: {}", url);
             restTemplate.delete(url);
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -99,7 +96,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Created a team with id: {}", team.getTeamId());
 
             return team;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -109,13 +105,12 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     public Team getTeam(int teamId) {
         try {
             String url = teamServiceUrl + "/" + teamId;
-
             LOG.debug("Will call the getTeam API on URL: {}", url);
+
             Team team = restTemplate.getForObject(url, Team.class);
-
             LOG.debug("Found team with id: {}", teamId);
-            return team;
 
+            return team;
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -142,7 +137,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Created a national team with id: {}", nationalTeam.getNationalTeamId());
 
             return nationalTeam;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -153,11 +147,11 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
         try {
             URI url = UriComponentsBuilder.fromUriString(nationalteamServiceUrl + "/nationalteam/{nationalteamId}").build(nationalteamId);
             LOG.debug("Will call the getNationalTeam API on URL: {}", url);
+
             NationalTeam nationalTeam = restTemplate.getForObject(url, NationalTeam.class);
-
             LOG.debug("Found national team with id: {}", nationalteamId);
-            return nationalTeam;
 
+            return nationalTeam;
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -184,7 +178,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Created a nationality with id: {}", nationality.getNationalityId());
 
             return nationality;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -195,11 +188,11 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
         try {
             URI url = UriComponentsBuilder.fromUriString(nationalityServiceUrl + "/nationality/{nationalityId}").build(nationalityId);
             LOG.debug("Will call the getNationality API on URL: {}", url);
+
             Nationality nationality = restTemplate.getForObject(url, Nationality.class);
-
             LOG.debug("Found nationality with id: {}", nationalityId);
-            return nationality;
 
+            return nationality;
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -226,7 +219,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
             LOG.debug("Created a league with id: {}", league.getLeagueId());
 
             return league;
-
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -236,13 +228,12 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
     public League getLeague(int leagueId) {
         try {
             URI url = UriComponentsBuilder.fromUriString(leagueServiceUrl + "/league/{leagueId}").build(leagueId);
-
             LOG.debug("Will call the getLeague API on URL: {}", url);
+
             League league = restTemplate.getForObject(url, League.class);
-
             LOG.debug("Found league with id: {}", leagueId);
-            return league;
 
+            return league;
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -261,7 +252,6 @@ public class PlayerCompositeIntegration implements PlayerService, TeamService, N
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
         switch (ex.getStatusCode()) {
-
             case NOT_FOUND:
                 return new NotFoundException(getErrorMessage(ex));
 

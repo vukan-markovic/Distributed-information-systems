@@ -32,7 +32,6 @@ public class PersistenceTests {
         assertEqualsNationality(entity, savedEntity);
     }
 
-
     @Test
     public void create() {
         NationalityEntity newEntity = new NationalityEntity(2, 3, "a", "s");

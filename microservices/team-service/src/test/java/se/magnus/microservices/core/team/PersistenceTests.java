@@ -32,7 +32,6 @@ public class PersistenceTests {
         assertEqualsTeam(entity, savedEntity);
     }
 
-
     @Test
     public void create() {
         TeamEntity newEntity = new TeamEntity(2, "a", "02.02.2021.", "c");
